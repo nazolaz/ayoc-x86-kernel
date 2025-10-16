@@ -40,6 +40,7 @@ start:
     ; ==============================
 
     ; COMPLETAR - Deshabilitar interrupciones (Parte 1: Pasake a modo protegido)
+    cli
 
     ; Cambiar modo de video a 80 X 50
     mov ax, 0003h
@@ -51,18 +52,25 @@ start:
     ; COMPLETAR - Imprimir mensaje de bienvenida - MODO REAL (Parte 1: Pasake a modo protegido)
     ; (revisar las funciones definidas en print.mac y los mensajes se encuentran en la
     ; sección de datos)
+    print_text_rm start_rm_msg, start_rm_len, C_FG_CYAN, SIZE_N, SIZE_M
 
     ; COMPLETAR - Habilitar A20 (Parte 1: Pasake a modo protegido)
     ; (revisar las funciones definidas en a20.asm)
+    call A20_enable
 
     ; COMPLETAR - los defines para la GDT en defines.h y las entradas de la GDT en gdt.c
     ; COMPLETAR - Cargar la GDT (Parte 1: Pasake a modo protegido)
-
+    lgdt [GDT_DESC]
     ; COMPLETAR - Setear el bit PE del registro CR0 (Parte 1: Pasake a modo protegido)
+
+    ;mov eax, cr0
+    ;or eax, 1
+    ;mov cr0, eax
 
     ; COMPLETAR - Saltar a modo protegido (far jump) (Parte 1: Pasake a modo protegido)
     ; (recuerden que un far jmp se especifica como jmp CS_selector:address)
     ; Pueden usar la constante CS_RING_0_SEL definida en este archivo
+    ;jmp CS_RING_0_SEL (maybe) 
 
 BITS 32
 modo_protegido:
