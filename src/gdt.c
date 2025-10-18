@@ -15,6 +15,14 @@ gdt_entry_t gdt[GDT_COUNT] = {
     /* Descriptor nulo*/
     /* Offset = 0x00 */
     [GDT_IDX_NULL_DESC] =
+
+        /* 
+            Completar la GDT: 
+            Es conveniente completar antes las constantes definidas en defines.h y valerse
+            de las mismas para definir los descriptores acá. Traten en lo posible de usar las 
+            macros allí definidas.
+            Tomen el descriptor nulo como ejemplo y definan el resto.
+        */
         {
             // El descriptor nulo es el primero que debemos definir siempre
             // Cada campo del struct se matchea con el formato que figura en el manual de intel
@@ -25,7 +33,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
             .type = 0x0,
             .s = 0x00,
             .dpl = 0x00,
-            .p = 0x00,
+            .p = 0x01,
             .limit_19_16 = 0x00,
             .avl = 0x0,
             .l = 0x0,
@@ -42,7 +50,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
             .type = 0xA,
             .s = DESC_CODE_DATA,
             .dpl = 0x00,
-            .p = 0x00,
+            .p = 0x01,
             .limit_19_16 = 0x3,
             .avl = 0x0,
             .l = 0x1,
@@ -59,7 +67,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
             .type = 0xA,
             .s = DESC_CODE_DATA,
             .dpl = 0x3,
-            .p = 0x00,
+            .p = 0x01,
             .limit_19_16 = 0x3,
             .avl = 0x0,
             .l = 0x1,
@@ -76,7 +84,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
             .type = 0x2,
             .s = DESC_CODE_DATA,
             .dpl = 0x00,
-            .p = 0x00,
+            .p = 0x01,
             .limit_19_16 = 0x3,
             .avl = 0x0,
             .l = 0x1,
@@ -93,21 +101,16 @@ gdt_entry_t gdt[GDT_COUNT] = {
             .type = 0x2,
             .s = DESC_CODE_DATA,
             .dpl = 0x3,
-            .p = 0x00,
+            .p = 0x01,
             .limit_19_16 = 0x3,
             .avl = 0x0,
-            .l = 0x1,
+            .l = 0x1, //chequear
             .db = 0x1,
             .g = 0x1,
             .base_31_24 = 0x00,
         },
 
-    /* Completar la GDT: 
-      Es conveniente completar antes las constantes definidas en defines.h y valerse
-      de las mismas para definir los descriptores acá. Traten en lo posible de usar las 
-      macros allí definidas.
-      Tomen el descriptor nulo como ejemplo y definan el resto.
-     */
+    
     
 };
 

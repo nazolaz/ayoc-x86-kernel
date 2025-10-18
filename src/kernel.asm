@@ -4,6 +4,14 @@
 ; ==============================================================================
 
 %include "print.mac"
+extern GDT_DESC
+
+;NO SUPIMOS COMO INCLUIR LOS DEFINES 
+%define C_FG_CYAN   0x3
+%define VIDEO_FILS  50
+%define VIDEO_COLS  80
+%define GDT_IDX_CODE_0 1
+
 
 global start
 
@@ -11,7 +19,7 @@ global start
 ; COMPLETAR - Agreguen declaraciones extern según vayan necesitando
 
 ; COMPLETAR - Definan correctamente estas constantes cuando las necesiten
-;%define CS_RING_0_SEL ??   
+%define CS_RING_0_SEL (GDT_IDX_CODE_0 << 3)  
 ;%define DS_RING_0_SEL ??   
 
 
@@ -52,7 +60,7 @@ start:
     ; COMPLETAR - Imprimir mensaje de bienvenida - MODO REAL (Parte 1: Pasake a modo protegido)
     ; (revisar las funciones definidas en print.mac y los mensajes se encuentran en la
     ; sección de datos)
-    print_text_rm start_rm_msg, start_rm_len, C_FG_CYAN, SIZE_N, SIZE_M
+    print_text_rm start_rm_msg, start_rm_len, C_FG_CYAN, 0, 0
 
     ; COMPLETAR - Habilitar A20 (Parte 1: Pasake a modo protegido)
     ; (revisar las funciones definidas en a20.asm)
@@ -63,14 +71,14 @@ start:
     lgdt [GDT_DESC]
     ; COMPLETAR - Setear el bit PE del registro CR0 (Parte 1: Pasake a modo protegido)
 
-    ;mov eax, cr0
-    ;or eax, 1
-    ;mov cr0, eax
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
 
     ; COMPLETAR - Saltar a modo protegido (far jump) (Parte 1: Pasake a modo protegido)
     ; (recuerden que un far jmp se especifica como jmp CS_selector:address)
     ; Pueden usar la constante CS_RING_0_SEL definida en este archivo
-    ;jmp CS_RING_0_SEL (maybe) 
+    jmp CS_RING_0_SEL
 
 BITS 32
 modo_protegido:
