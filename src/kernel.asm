@@ -11,6 +11,7 @@ extern GDT_DESC
 %define VIDEO_FILS  50
 %define VIDEO_COLS  80
 %define GDT_IDX_CODE_0 1
+%define GDT_IDX_DATA_0 3
 
 
 global start
@@ -20,8 +21,7 @@ global start
 
 ; COMPLETAR - Definan correctamente estas constantes cuando las necesiten
 %define CS_RING_0_SEL (GDT_IDX_CODE_0 << 3)  
-;%define DS_RING_0_SEL ??   
-
+%define DS_RING_0_SEL (GDT_IDX_DATA_0 << 3)  
 
 BITS 16
 ;; Saltear seccion de datos
@@ -70,7 +70,6 @@ start:
     ; COMPLETAR - Cargar la GDT (Parte 1: Pasake a modo protegido)
     lgdt [GDT_DESC]
     ; COMPLETAR - Setear el bit PE del registro CR0 (Parte 1: Pasake a modo protegido)
-
     mov eax, cr0
     or eax, 1
     mov cr0, eax
@@ -78,18 +77,26 @@ start:
     ; COMPLETAR - Saltar a modo protegido (far jump) (Parte 1: Pasake a modo protegido)
     ; (recuerden que un far jmp se especifica como jmp CS_selector:address)
     ; Pueden usar la constante CS_RING_0_SEL definida en este archivo
-    jmp CS_RING_0_SEL
+    jmp CS_RING_0_SEL:modo_protegido
 
 BITS 32
 modo_protegido:
     ; COMPLETAR (Parte 1: Pasake a modo protegido) - A partir de aca, todo el codigo se va a ejectutar en modo protegido
     ; Establecer selectores de segmentos DS, ES, GS, FS y SS en el segmento de datos de nivel 0
     ; Pueden usar la constante DS_RING_0_SEL definida en este archivo
+    mov ax, DS_RING_0_SEL
+    mov ds, ax
+    mov es, ax
+    mov gs, ax
+    mov fs, ax
+    mov ss, ax
 
     ; COMPLETAR - Establecer el tope y la base de la pila (Parte 1: Pasake a modo protegido)
+    mov esp, 0x25000
+    mov ebp, esp
 
     ; COMPLETAR - Imprimir mensaje de bienvenida - MODO PROTEGIDO (Parte 1: Pasake a modo protegido)
-
+    print_text_pm start_pm_msg, start_pm_len, C_FG_CYAN, 20, 0
     ; COMPLETAR - Inicializar pantalla (Parte 1: Pasake a modo protegido)
     
     ; ===================================
