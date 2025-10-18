@@ -71,7 +71,7 @@ TALLER System Programming - Arquitectura y Organizacion de Computadoras - FCEN
 
 /* COMPLETAR - Tamaños de segmentos */ 
 #define FLAT_SEGM_SIZE   0x3449c
-//#define VIDEO_SEGM_SIZE  ??
+#define VIDEO_SEGM_SIZE  0xD
 
 
 /* Direcciones de memoria */

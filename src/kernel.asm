@@ -5,6 +5,7 @@
 
 %include "print.mac"
 extern GDT_DESC
+extern screen_draw_layout
 
 ;NO SUPIMOS COMO INCLUIR LOS DEFINES 
 %define C_FG_CYAN   0x3
@@ -96,8 +97,9 @@ modo_protegido:
     mov ebp, esp
 
     ; COMPLETAR - Imprimir mensaje de bienvenida - MODO PROTEGIDO (Parte 1: Pasake a modo protegido)
-    print_text_pm start_pm_msg, start_pm_len, C_FG_CYAN, 20, 0
+    print_text_pm start_pm_msg, start_pm_len, C_FG_CYAN, 30, 0
     ; COMPLETAR - Inicializar pantalla (Parte 1: Pasake a modo protegido)
+    call screen_draw_layout
     
     ; ===================================
     ; ||     (Parte 3: Paginación)     ||

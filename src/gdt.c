@@ -87,7 +87,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
             .p = 0x01,
             .limit_19_16 = 0x3,
             .avl = 0x0,
-            .l = 0x1,
+            .l = 0x0,
             .db = 0x1,
             .g = 0x1,
             .base_31_24 = 0x00,
@@ -104,11 +104,28 @@ gdt_entry_t gdt[GDT_COUNT] = {
             .p = 0x01,
             .limit_19_16 = 0x3,
             .avl = 0x0,
-            .l = 0x1, //chequear
+            .l = 0x0, //chequear
             .db = 0x1,
             .g = 0x1,
             .base_31_24 = 0x00,
         },
+    [GDT_IDX_VIDEO] = 
+        {
+            // base = 0x000B8000 ; dato read/write ; kernel
+            .limit_15_0 = 0x000C,
+            .base_15_0 = 0x8000,
+            .base_23_16 = 0x0B,
+            .type = 0x2,
+            .s = DESC_CODE_DATA,
+            .dpl = 0x0,
+            .p = 0x01,
+            .limit_19_16 = 0x0,
+            .avl = 0x0,
+            .l = 0x0, //chequear
+            .db = 0x1,
+            .g = 0x1,
+            .base_31_24 = 0x00,
+        }
 
     
     
