@@ -1,0 +1,125 @@
+EJERCICIO 1
+-----------
+El modo real del procesador es aquel en cual se inicia tras un encendido de la computadora. Se tiene que en este modo:
+	- No hay niveles de proteccion ni aislamiento, cualquier programa puede acceder a cualquier direccion. 
+	- Se cuenta con todo el set de instrucciones del 8086 y se trabaja en registros de 16 bits(A CHEQUEAR!), asegurando retrocompatibilidad. 
+	- Se tiene 1MB de memoria para maniobrar.
+
+Luego, el kernel se encarga de pasar de modo real a protegido. En este modo se tiene que 
+	- Contamos con registros de 32 bits y 4 GBs de memoria disponible. 
+	- Existen 4 niveles de proteccion (0-3), en donde el nivel 0 es el de mayor privilegio y esta reservado para el kernel y el 3 es reservado para tareas de usuario.
+	- Se introducen la paginacion y, junto con la GDT, la segmentacion las cuales otorgan proteccion a memoria.
+	- Permite ejecutar multiples tareas simultaneamente.
+
+
+EJERCICIO 2
+-----------
+Podriamos tener un sistema operativo en modo real pero seria limitado, inseguro y poco eficiente:
+	- Limitado ya que en el modelo actual de modo real, se cuenta unicamente con registros de 16 bits y 1MB de memoria.
+	- Inseguro porque no hay proteccion en la memoria, pudiendo acceder a cualquier parte de la misma.
+	- Poco eficiente porque no se cuenta con la capacidad de hacer multitareas.
+Todas estas son desventajas se resuelven pasando a modo protegido.
+
+
+EJERCICIO 3
+-----------
+La Global Descriptor Table (GDT) es una tabla que define descriptores de segmento, es utilizada por el procesador en modo protegido para el acceso a la memoria. Cada descriptor de segmento la siguiente informacion sobre el segmento al que referencia:
+	- Limit: Tamaño del segmento.
+	- Base: Direccion al inicio del segmento.
+	- G: Granularidad, define si el limite esta en bytes o en bloques de kb.
+	- P: Present bit, indica si el segmento esta activo en memoria.
+	- DPL: Nivel del privilegio del segmento.
+	- S: Descriptor de tipo, define si el segmento es de sistema o de datos/ejecucion.
+
+
+EJERCICIO 4
+-----------
+Tendriamos que usar la combinacion de bits 1010:
+	- El bit 11 en 1 indica que el segmento es de codigo/ejecucion.
+	- El bit 10 en 0 indica que el segmento es ejecutable solo desde su propio DPL.
+	- El bit 09 en 1 indica que ademas el segmento es de lectura.
+	- El bit 08 en 0 indica que el segmento no ha sido accedido por la CPU.
+
+
+EJERCICIO 6
+-----------
+La variable gdt de tipo gdt_entry_t[] es un array que contiene los descriptores de segmento de la GDT.
+La variale GDT_DESC de tipo gdt_descriptor_t es un struct que contiene datos que se corresponden a los datos en los registros de la GDTR.
+Son variables externas declaradas en el header pero provistas por otro archivo.
+
+
+EJERCICIO 10
+------------
+La instruccion LGDT carga la direccion y el limite de la GDT en el registro GDTR, osea los datos que en el codigo se corresponden al GDT_DESC. Esta variable se inicializa en el archivo gdt.c
+
+
+EJERCICIO 11
+------------
+Efectivamente, hay que modificarlo siendo que el bit menos significativo de este señala si el procesador se encuentra en modo protegido o real.
+
+EJERCICIO 22
+------------
+El metodo screen_draw_box, dado un caracter y una seccion rectangulo de la pantalla, rellena esta seccion con dicho caracter junto con su atributo.
+Para acceder a la pantalla castea a la variable VIDEO, que la direccion fisica del buffer de video y lo castea para utilizarlo como una matriz de ca's del tamaño de la pantalla, pudiendo asi modificar el valor de cada pixel en memoria.
+Para representar cada caracter en pantalla utiliza la estructura ca_s, que contiene 2 uint8_t donde el primero es el propio caracter y el segundo sus atributos, por lo que ocupa 2 bytes en memoria.
+_________________________________
+
+A PREGUNTAR
+-----------
+	- Esta bien algo de lo escribimos en kernel.asm?
+	- En modo real, tomamos que los registros tienen 16 o 20 bits?
+	- El bit L (que muestra si el codigo es de 64 bits) lo mantenemos apagado o prendido??? por ahora esta en 1 ya que hasta ahora programamos en 64 bits.
+	- El bit P en la planilla lo dejamos en 1 o en 0??
+	- En el D del D/B cuando se usa el modo de 16 bits (cuando esta apagado)??	
+	- Preguntar AVL (AVL: flag que marca si esta disponible para el uso del system software)
+	- Esta bien nuestro segment limit????
+	- preguntar como incluir otros archivos para usar sus defines en asm
+	- porque esta bien ese jmp????? como sabe que debe calcularlo desde la base de la gdt?
+	- el cr0 se nos inicio en 0x11 en lugar de 0x1
+	- en "gdb info" los descriptores de datos uno dice accessed y el otro no.
+	- La base de nuestros segmentores de selecto son todos 1??
+	- Porque desactivamos las interrupciones??
+
+ 
+
+
+__________________________________
+
+| Clase practica - Interrupciones - 20/10 |
+
+Las excepciones son un tipo de interrupcion generados por el precesador cuando se cumple una condicion, por ejemplo acceder a un espacio de memoria que tiene el bit P apagado. Tipos de ecepciones:
+	- Fault: Excepcion que podria corregirse para que el programa continue su ejecucion. El proceador guarda en la pila la direccion de la instruccion que produjo la falla. 
+	- Traps: Excepcion producida al terminar la ejecucion de una instruccion de trap. El procesador guarda en la pila la direccion de la instruccion que la causo el trap.
+	- Aborts: Excepcion que no siempre puede determinar la instruccion que la causa, ni permite recuperar la ejecucion de la tarea que la causo. Reporta errores severos de hardware o inconsistencias en tablas del sistema.
+
+Las interrupciones pueden ser:
+	- Externas: cuyo origen se da en un dispositivo externoe, nuestro caso van a ser el reloj y el teclado.
+	- Internas: Cuyo origen se da en una llamada a la instruccion int por parte de un proceso
+
+Implementando interrupciones
+----------------------------
+Para implementar el mecanismo asociado a cada interrupcion:
+	 - Escribimos la rutina de atencion de cada excepcion/interrupcion, es importante utilizar IRET en lugar de RET.
+	 - Definimos nuestra IDT con los descriptores correspondientes.
+	 - Cargamos nuestro descriptor de IDT en IDTR.
+
+Estado de la pila
+-----------------
+Antes de atender una excepcion el procesador pushea en la pila:
+	- El registro EFLAGS.
+	- El registro CS.
+	- El registro EIP.
+	- En algunas excepciones tambien un error code.
+Con la instruccion IRET estas cosas se restauran.
+
+Interrupciones externas del taller
+----------------------------------
+Las interrupciones externas son administrardas por un controlador de interrupciones (PIC)
+
+Para el TP:
+-----------
+	- Como estamos en flat, el offset es directamente la direccion 
+	- Vamos a usar el codigo 1110 para el tipo de interrupciones que vamos a usar.
+
+
+
