@@ -1,0 +1,53 @@
+POR HACER
+----------
+VER BIEN COMO HABILITAR EL A20
+
+__________________________________
+
+A PREGUNTAR
+-----------
+	- En el D del D/B cuando se usa el modo de 16 bits (cuando esta apagado)???...... LO DEJAMOS PRENDIDO PORQUE TRABAJAMOS CON 32 BITS 
+	- porque esta bien ese jmp????? como sabe que debe calcularlo desde la base de la gdt?
+	- Porque desactivamos las interrupciones??
+
+
+__________________________________
+
+| Clase practica - Interrupciones - 20/10 |
+
+Las excepciones son un tipo de interrupcion generados por el precesador cuando se cumple una condicion, por ejemplo acceder a un espacio de memoria que tiene el bit P apagado. Tipos de ecepciones:
+	- Fault: Excepcion que podria corregirse para que el programa continue su ejecucion. El proceador guarda en la pila la direccion de la instruccion que produjo la falla. 
+	- Traps: Excepcion producida al terminar la ejecucion de una instruccion de trap. El procesador guarda en la pila la direccion de la instruccion que la causo el trap.
+	- Aborts: Excepcion que no siempre puede determinar la instruccion que la causa, ni permite recuperar la ejecucion de la tarea que la causo. Reporta errores severos de hardware o inconsistencias en tablas del sistema.
+
+Las interrupciones pueden ser:
+	- Externas: cuyo origen se da en un dispositivo externoe, nuestro caso van a ser el reloj y el teclado.
+	- Internas: Cuyo origen se da en una llamada a la instruccion int por parte de un proceso
+
+Implementando interrupciones
+----------------------------
+Para implementar el mecanismo asociado a cada interrupcion:
+	 - Escribimos la rutina de atencion de cada excepcion/interrupcion, es importante utilizar IRET en lugar de RET.
+	 - Definimos nuestra IDT con los descriptores correspondientes.
+	 - Cargamos nuestro descriptor de IDT en IDTR.
+
+Estado de la pila
+-----------------
+Antes de atender una excepcion el procesador pushea en la pila:
+	- El registro EFLAGS.
+	- El registro CS.
+	- El registro EIP.
+	- En algunas excepciones tambien un error code.
+Con la instruccion IRET estas cosas se restauran.
+
+Interrupciones externas del taller
+----------------------------------
+Las interrupciones externas son administrardas por un controlador de interrupciones (PIC)
+
+Para el TP:
+-----------
+	- Como estamos en flat, el offset es directamente la direccion 
+	- Vamos a usar el codigo 1110 para el tipo de interrupciones que vamos a usar.
+
+
+

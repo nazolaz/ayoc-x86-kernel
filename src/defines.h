@@ -65,12 +65,12 @@ TALLER System Programming - Arquitectura y Organizacion de Computadoras - FCEN
 /* COMPLETAR - (Parte 1: Pasaje a modo protegido)  - Valores de atributos */ 
 /* -------------------------------------------------------------------------- */
 #define DESC_CODE_DATA 1
-#define DESC_SYSTEM    0
-#define DESC_TYPE_EXECUTE_READ 1010
-#define DESC_TYPE_READ_WRITE   0010
+#define DESC_SYSTEM 0
+#define DESC_TYPE_EXECUTE_READ 0xA
+#define DESC_TYPE_READ_WRITE   0x2
 
 /* COMPLETAR - Tamaños de segmentos */ 
-#define FLAT_SEGM_SIZE   0x3449c
+#define FLAT_SEGM_SIZE   0x330FF
 #define VIDEO_SEGM_SIZE  0xD
 
 
