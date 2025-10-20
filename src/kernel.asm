@@ -65,6 +65,9 @@ start:
 
     ; COMPLETAR - Habilitar A20 (Parte 1: Pasake a modo protegido)
     ; (revisar las funciones definidas en a20.asm)
+    call A20_check
+    call A20_disable
+    call A20_check
     call A20_enable
 
     ; COMPLETAR - los defines para la GDT en defines.h y las entradas de la GDT en gdt.c
@@ -72,7 +75,7 @@ start:
     lgdt [GDT_DESC]
     ; COMPLETAR - Setear el bit PE del registro CR0 (Parte 1: Pasake a modo protegido)
     mov eax, cr0
-    or eax, 1
+    or eax, 0x1
     mov cr0, eax
 
     ; COMPLETAR - Saltar a modo protegido (far jump) (Parte 1: Pasake a modo protegido)

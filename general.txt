@@ -70,7 +70,7 @@ A PREGUNTAR
 	- En modo real, tomamos que los registros tienen 16 o 20 bits?
 	- El bit L (que muestra si el codigo es de 64 bits) lo mantenemos apagado o prendido??? por ahora esta en 1 ya que hasta ahora programamos en 64 bits.
 	- El bit P en la planilla lo dejamos en 1 o en 0??
-	- En el D del D/B cuando se usa el modo de 16 bits (cuando esta apagado)??	
+	- En el D del D/B cuando se usa el modo de 16 bits??? (cuando esta apagado)	
 	- Preguntar AVL (AVL: flag que marca si esta disponible para el uso del system software)
 	- Esta bien nuestro segment limit????
 	- preguntar como incluir otros archivos para usar sus defines en asm
