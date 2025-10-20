@@ -1,3 +1,7 @@
+VER BIEN COMO HABILITAR EL A20
+
+
+
 EJERCICIO 1
 -----------
 El modo real del procesador es aquel en cual se inicia tras un encendido de la computadora. Se tiene que en este modo:
@@ -67,20 +71,22 @@ _________________________________
 A PREGUNTAR
 -----------
 	- Esta bien algo de lo escribimos en kernel.asm?
-	- En modo real, tomamos que los registros tienen 16 o 20 bits?
-	- El bit L (que muestra si el codigo es de 64 bits) lo mantenemos apagado o prendido??? por ahora esta en 1 ya que hasta ahora programamos en 64 bits.
-	- El bit P en la planilla lo dejamos en 1 o en 0??
-	- En el D del D/B cuando se usa el modo de 16 bits??? (cuando esta apagado)	
-	- Preguntar AVL (AVL: flag que marca si esta disponible para el uso del system software)
-	- Esta bien nuestro segment limit????
-	- preguntar como incluir otros archivos para usar sus defines en asm
-	- porque esta bien ese jmp????? como sabe que debe calcularlo desde la base de la gdt?
-	- el cr0 se nos inicio en 0x11 en lugar de 0x1
-	- en "gdb info" los descriptores de datos uno dice accessed y el otro no.
-	- La base de nuestros segmentores de selecto son todos 1??
-	- Porque desactivamos las interrupciones??
 
- 
+	- En modo real, tomamos que los registros tienen 16 o 20 bits? no nada quever
+	- El bit L (que muestra si el codigo es de 64 bits) lo mantenemos apagado o prendido??? por ahora esta en 1 ya que hasta ahora programamos en 64 bits.......... PERO VA EN 0 PQ ESTAMOS PROGRAMANDO EN 32 BITS
+	- El bit P en la planilla lo dejamos en 1 o en 0?? es el present bit que indica presencia (al final quedo en 1 pq nos lo pedia en una consigna)
+	- En el D del D/B cuando se usa el modo de 16 bits (cuando esta apagado)???...... LO DEJAMOS PRENDIDO PORQUE TRABAJAMOS CON 32 BITS 
+	- Preguntar AVL (AVL: flag que marca si esta disponible para el uso del system software)
+	- Esta bien nuestro segment limit???? 
+	- preguntar como incluir otros archivos para usar sus defines en asm... no pasa nada
+	- porque esta bien ese jmp????? como sabe que debe calcularlo desde la base de la gdt?
+	- el cr0 se nos inicio en 0x11 en lugar de 0x1.... esto no pasa nada
+	- en "gdb info" los descriptores de datos uno dice accessed y el otro no. preguntar a jorge
+	- La base de nuestros segmentos de selector son todos 0??
+	- Porque desactivamos las interrupciones??
+	- cual es la idea del flat	
+
+	 
 
 
 __________________________________
