@@ -70,7 +70,7 @@ TALLER System Programming - Arquitectura y Organizacion de Computadoras - FCEN
 #define DESC_TYPE_READ_WRITE   0x2
 
 /* COMPLETAR - Tamaños de segmentos */ 
-#define FLAT_SEGM_SIZE   0x330FF
+#define FLAT_SEGM_SIZE   0x33100000
 #define VIDEO_SEGM_SIZE  0xD
 
 

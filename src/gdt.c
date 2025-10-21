@@ -36,70 +36,70 @@ gdt_entry_t gdt[GDT_COUNT] = {
 
     [GDT_IDX_CODE_0] =
         {
-            .limit_15_0 = GDT_LIMIT_LOW(FLAT_SEGM_SIZE),
-            .base_15_0 = 0x0000,
-            .base_23_16 = 0x00,
+            .limit_15_0 = GDT_LIMIT_LOW(GDT_LIMIT_4KIB(FLAT_SEGM_SIZE)),
+            .base_15_0 = GDT_BASE_LOW(0x00000),
+            .base_23_16 = GDT_BASE_MID(0x00000),
             .type = DESC_TYPE_EXECUTE_READ,
             .s = DESC_CODE_DATA,
             .dpl = 0x00,
             .p = 0x01,
-            .limit_19_16 = GDT_LIMIT_HIGH(FLAT_SEGM_SIZE),
+            .limit_19_16 = GDT_LIMIT_HIGH(GDT_LIMIT_4KIB(FLAT_SEGM_SIZE)),
             .avl = 0x0,
             .l = 0x0,
             .db = 0x1,
             .g = 0x1,
-            .base_31_24 = 0x00,
+            .base_31_24 = GDT_BASE_HIGH(0x00000),
         },
     
     [GDT_IDX_CODE_3] =
         {
-            .limit_15_0 = GDT_LIMIT_LOW(FLAT_SEGM_SIZE),
-            .base_15_0 = 0x0000,
-            .base_23_16 = 0x00,
+            .limit_15_0 = GDT_LIMIT_LOW(GDT_LIMIT_4KIB(FLAT_SEGM_SIZE)),
+            .base_15_0 = GDT_BASE_LOW(0x00000),
+            .base_23_16 = GDT_BASE_MID(0x00000),
             .type = DESC_TYPE_EXECUTE_READ,
             .s = DESC_CODE_DATA,
             .dpl = 0x3,
             .p = 0x01,
-            .limit_19_16 = GDT_LIMIT_HIGH(FLAT_SEGM_SIZE),
+            .limit_19_16 = GDT_LIMIT_HIGH(GDT_LIMIT_4KIB(FLAT_SEGM_SIZE)),
             .avl = 0x0,
             .l = 0x0,
             .db = 0x1,
             .g = 0x1,
-            .base_31_24 = 0x00,
+            .base_31_24 = GDT_BASE_HIGH(0x00000),
         },
 
     [GDT_IDX_DATA_0] =
         {
-            .limit_15_0 = GDT_LIMIT_LOW(FLAT_SEGM_SIZE),
-            .base_15_0 = 0x0000,
-            .base_23_16 = 0x00,
+            .limit_15_0 = GDT_LIMIT_LOW(GDT_LIMIT_4KIB(FLAT_SEGM_SIZE)),
+            .base_15_0 = GDT_BASE_LOW(0x00000),
+            .base_23_16 = GDT_BASE_MID(0x00000),
             .type = DESC_TYPE_READ_WRITE,
             .s = DESC_CODE_DATA,
             .dpl = 0x00,
             .p = 0x01,
-            .limit_19_16 = GDT_LIMIT_HIGH(FLAT_SEGM_SIZE),
+            .limit_19_16 = GDT_LIMIT_HIGH(GDT_LIMIT_4KIB(FLAT_SEGM_SIZE)),
             .avl = 0x0,
             .l = 0x0,
             .db = 0x1,
             .g = 0x1,
-            .base_31_24 = 0x00,
+            .base_31_24 = GDT_BASE_HIGH(0x00000),
         },
         
     [GDT_IDX_DATA_3] =
         {
-            .limit_15_0 = GDT_LIMIT_LOW(FLAT_SEGM_SIZE),
-            .base_15_0 = 0x0000,
-            .base_23_16 = 0x00,
+            .limit_15_0 = GDT_LIMIT_LOW(GDT_LIMIT_4KIB(FLAT_SEGM_SIZE)),
+            .base_15_0 = GDT_BASE_LOW(0x00000),
+            .base_23_16 = GDT_BASE_MID(0x00000),
             .type = DESC_TYPE_READ_WRITE,
             .s = DESC_CODE_DATA,
             .dpl = 0x3,
             .p = 0x01,
-            .limit_19_16 = GDT_LIMIT_HIGH(FLAT_SEGM_SIZE),
+            .limit_19_16 = GDT_LIMIT_HIGH(GDT_LIMIT_4KIB(FLAT_SEGM_SIZE)),
             .avl = 0x0,
             .l = 0x0,
             .db = 0x1,
             .g = 0x1,
-            .base_31_24 = 0x00,
+            .base_31_24 = GDT_BASE_HIGH(0x00000),
         
         },
 
@@ -107,8 +107,8 @@ gdt_entry_t gdt[GDT_COUNT] = {
         {
             // base = 0x000B8000 ; dato read/write ; kernel
             .limit_15_0 = GDT_LIMIT_LOW(VIDEO_SEGM_SIZE),
-            .base_15_0 = 0x8000,
-            .base_23_16 = 0x0B,
+            .base_15_0 = GDT_BASE_LOW(0x000B8000),
+            .base_23_16 = GDT_BASE_MID(0x000B8000),
             .type = DESC_TYPE_READ_WRITE,
             .s = DESC_CODE_DATA,
             .dpl = 0x0,
@@ -118,7 +118,7 @@ gdt_entry_t gdt[GDT_COUNT] = {
             .l = 0x0, 
             .db = 0x1,
             .g = 0x1,
-            .base_31_24 = 0x00,
+            .base_31_24 = GDT_BASE_HIGH(0x000B8000),
         }
     /* Completar la GDT: 
       Es conveniente completar antes las constantes definidas en defines.h y valerse
