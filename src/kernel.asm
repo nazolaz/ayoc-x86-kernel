@@ -5,6 +5,8 @@
 
 %include "print.mac"
 extern GDT_DESC
+extern IDT_DESC
+extern idt_init
 extern screen_draw_layout
 
 ;NO SUPIMOS COMO INCLUIR LOS DEFINES 
@@ -136,6 +138,8 @@ modo_protegido:
     ; ===================================
 
     ; COMPLETAR - las funciones en idt.c
+    call idt_init
+    lidt [IDT_DESC]
 
     ; COMPLETAR - Inicializar y cargar la IDT
 
