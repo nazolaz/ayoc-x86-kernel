@@ -1,0 +1,15 @@
+Primera parte
+a) Cada entrada de la IDT tiene los siguientes campos:
+	- DPL: Describe el minimo nivel de privilegio que debe tener un programa para llamar a la interrupcion.
+	- Offset: Dentro del segmento de codigo dado por el selector, el offset indica donde empiezan las instrucciones del handler
+	- P: Es el present bit que indica si la interrupcion esta activa en memoria.
+	- Selector: Es un indice a un descriptor de segmento de codigo en la GDT que contiene el codigo del handler.
+	- D: Indica si el tamaño del gate es de 16 o 32 bits.
+
+____
+
+PREGUNTAR 
+---------
+	- Porque a veces mandamos al 0x20 y a veces al 0x21
+	- ICW3 = 0x4 indica que el slave esta conectado al master por el puerto del IRQ2 (del master). En el diagrama es el unico puerto por el que esta conectado, que indicaria que ICW3 no sea 0x4????????????????????????????????
+	- 
