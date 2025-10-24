@@ -6,10 +6,18 @@ a) Cada entrada de la IDT tiene los siguientes campos:
 	- Selector: Es un indice a un descriptor de segmento de codigo en la GDT que contiene el codigo del handler.
 	- D: Indica si el tamaño del gate es de 16 o 32 bits.
 
+
+Segunda parte
+a) ¿Qué oficiaría de prólogo y epílogo de estas rutinas?
+b) ¿Qué marca el iret y por qué no usamos ret?
+	- iret se usa para volver de una interrupción o excepción porque devuelve la
+	  CPU exactamente al estado anterior a la interrupción (restaura Error Code (?), EIP,
+	  CS, EFLAGS y, si hubo cambio de privilegio, ESP y SS) mientras que ret solo
+	  vuelve de una llamada normal (call) sin restaurar nada.
 ____
 
 PREGUNTAR 
 ---------
 	- Porque a veces mandamos al 0x20 y a veces al 0x21
 	- ICW3 = 0x4 indica que el slave esta conectado al master por el puerto del IRQ2 (del master). En el diagrama es el unico puerto por el que esta conectado, que indicaria que ICW3 no sea 0x4????????????????????????????????
-	- 
+	- ¿El clock esta bien?
