@@ -12,8 +12,9 @@
 
 //#define ICW1_ICW4 0x01
 //#define ICW1_INIT 0x10
-//define PIC1_DATA (PIC1_PORT+1)
-//define PIC2_DATA (PIC2_PORT+1)
+ 
+#define PIC1_DATA (PIC1_PORT+1)
+#define PIC2_DATA (PIC2_PORT+1)
 
 static __inline __attribute__((always_inline)) void outb(uint32_t port,
                                                          uint8_t data) {
@@ -32,13 +33,14 @@ void pic_reset() {
   // Inicialización PIC1 
   // ICW1: IRQs activas, modo cascada e indica que ICW4 va a estar presente.
   outb(PIC1_PORT, 0x11); 
-  // ICW2: INT base para el PIC1, tipo x08 (?).
-  outb(PIC1_PORT+1, 0x08);
+  // ICW2: INT base para el PIC1, arranca en 0x20 = indice INT 32
+  outb(PIC1_PORT+1, 0x20);
   // ICW3: PIC1 Master, tiene Slave conectado a IRQ2
-  outb(PIC1_PORT+1, 0x04);
-  // ICW4: Modo no Buffered, fin de interrupción normal; deshabilitar interrupciones del PIC1
+  outb(PIC1_PORT+1, 0x04); 
+  // ICW4: Modo no Buffered, fin de interrupción normal; deshabilitar interrupciones del PIC1 
+  // Ultimo bit indica modo 8086
   outb(PIC1_PORT+1, 0x01);
-  // OCW1: Set o Clearel IMR
+  // OCW1: Set o Clearel IMR 
   outb(PIC1_PORT+1, 0xFF);
 
   // Inicialización PIC2

@@ -157,7 +157,7 @@ _isr32:
     
     ; 2. Imprimimos el reloj que gira en pantalla
     ; COMPLETAR
-    
+    call next_clock
     ; 3. Realizamos el cambio de tareas en caso de ser necesario
     ; COMPLETAR
 
@@ -166,6 +166,7 @@ _isr32:
     call tasks_tick
     ; 4. Actualizamos la "interfaz" del sistema en pantalla
     call tasks_screen_update
+    call pic_finish1
     popad
     iret
 

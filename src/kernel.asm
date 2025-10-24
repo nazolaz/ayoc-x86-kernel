@@ -5,9 +5,11 @@
 
 %include "print.mac"
 extern GDT_DESC
+extern screen_draw_layout
 extern IDT_DESC
 extern idt_init
-extern screen_draw_layout
+extern pic_reset
+extern pic_enable
 
 ;NO SUPIMOS COMO INCLUIR LOS DEFINES 
 %define C_FG_CYAN   0x3
@@ -144,9 +146,9 @@ modo_protegido:
     lidt [IDT_DESC]
 
     ; COMPLETAR - Reiniciar y habilitar el controlador de interrupciones (ver pic.c)
-    call pic_reset  ; remapear PIC
-    call pic_enable ; habilitar PIC
-    sti             ; habilitar interrupciones
+    call pic_reset  ; remapeamos PIC
+    call pic_enable ; habilitamos PIC
+    sti             ; habilitamos interrupciones
     ; COMPLETAR - Rutinas de atención de reloj, teclado, e interrupciones 88 y 89 (en isr.asm)
 
     ; COMPLETAR (Parte 4: Tareas)- Cargar tarea inicial
