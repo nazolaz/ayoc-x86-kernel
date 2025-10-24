@@ -149,7 +149,10 @@ modo_protegido:
     call pic_reset  ; remapeamos PIC
     call pic_enable ; habilitamos PIC
     sti             ; habilitamos interrupciones
+
     ; COMPLETAR - Rutinas de atención de reloj, teclado, e interrupciones 88 y 89 (en isr.asm)
+    mov eax, 0x45
+    int 0x58
 
     ; COMPLETAR (Parte 4: Tareas)- Cargar tarea inicial
 
