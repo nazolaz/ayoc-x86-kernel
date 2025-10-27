@@ -152,7 +152,7 @@ modo_protegido:
 
     ; COMPLETAR - Rutinas de atención de reloj, teclado, e interrupciones 88 y 89 (en isr.asm)
     mov eax, 0x45
-    int 0x58
+    int 88
 
     ; COMPLETAR (Parte 4: Tareas)- Cargar tarea inicial
 

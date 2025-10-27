@@ -9,6 +9,7 @@ a) Cada entrada de la IDT tiene los siguientes campos:
 
 Segunda parte
 a) ¿Qué oficiaría de prólogo y epílogo de estas rutinas?
+	- Usamos las instrucciones pushad y popad, respectivamente, para el prologo y el epilogo. Los cuales salvan los registros volatiles que el usuario podria haber estado usando antes de la ejecucion de la interrupcion. 
 b) ¿Qué marca el iret y por qué no usamos ret?
 	- iret se usa para volver de una interrupción o excepción porque devuelve la
 	  CPU exactamente al estado anterior a la interrupción (EIP,
@@ -16,11 +17,3 @@ b) ¿Qué marca el iret y por qué no usamos ret?
 	  vuelve de una llamada normal (call) sin restaurar nada.
 ____
 
-PREGUNTAR 
----------
-	- Porque a veces mandamos al 0x20 y a veces al 0x21
-	- ICW3 = 0x4 indica que el slave esta conectado al master por el puerto del IRQ2 (del master). En el diagrama es el unico puerto por el que esta conectado, que indicaria que ICW3 no sea 0x4????????????????????????????????
-	- Ayuda con el handleo
-		* pic_finish1 va al final o al principio???
-		* como es lo de llamar a la instruccion int?
-		* process_scancode o tasks_input_process? para isr33

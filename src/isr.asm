@@ -155,7 +155,7 @@ _isr32:
     pushad
     ; 1. Le decimos al PIC que vamos a atender la interrupción
     ; COMPLETAR
-    
+    call pic_finish1    
     ; 2. Imprimimos el reloj que gira en pantalla
     ; COMPLETAR
     call next_clock
@@ -168,24 +168,24 @@ _isr32:
     ; 4. Actualizamos la "interfaz" del sistema en pantalla
     call tasks_screen_update
 
-    call pic_finish1
     popad
     iret
 
 ;; Rutina de atención del TECLADO
 ;; -------------------------------------------------------------------------- ;;
 global _isr33
-; COMPLETAR: Implementar la rutina
+; COMPLETAR: Implementar la rutina 
 _isr33:
     pushad
     ; 1. Le decimos al PIC que vamos a atender la interrupción
-    
-    ; 2. Leemos la tecla desde el teclado y la procesamos con la funcion tasks_input_process
-    in al, 0x60
-    mov dl, al
-    call process_scancode
-
     call pic_finish1
+    ; 2. Leemos la tecla desde el teclado y la procesamos con la funcion tasks_input_process
+    in al, 0x60; in solo anda para el eax
+
+    push eax
+    call process_scancode; process_scanconde es void
+    pop eax
+
     popad
     iret
 
@@ -198,24 +198,16 @@ global _isr88
 ; Para la seccion de interrupciones: que modifique el valor de eax por 0x58
 ; Para las secciones de paginación y tareas: que llame a la funcion task_syscall_draw
 _isr88:
-  pushad
-
   mov eax, 0x58
 
-  call pic_finish1
-  popad
   iret
 
 ; COMPLETAR: Implementar la rutina
 ; La rutina debe modificar el valor de eax por 0x62
 global _isr98
 _isr98:
-  pushad
-
   mov eax, 0x62
 
-  call pic_finish1
-  popad
   iret
 
 ; PushAD Order

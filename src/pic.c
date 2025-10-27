@@ -47,7 +47,7 @@ void pic_reset() {
   // ICW1: IRQs activas, modo cascada e indica que ICW4 va a estar presente.
   outb(PIC2_PORT, 0x11);
   // ICW2: INT base para el PIC2, tipo x70 (?).
-  outb(PIC2_PORT+1, 0x70);
+  outb(PIC2_PORT+1, 40);
   // ICW3: PIC2 Slave, IRQ2 es lo que envia al Master.
   outb(PIC2_PORT+1, 0x02);
   // IC4W: Modo no Buffered; fin de interrupción normal.
