@@ -38,3 +38,11 @@ d) Se tiene que, para los atributos de las PDEs y PDTs:
 e) Se tiene que cada tarea tiene un directorio de paginas propio el cual, al ser de 4KiB, ocupa una pagina. 
 Por otro lado, se necesitan 2 paginas para el codigo y 1 para la pila. Y, como una tabla de pagina contiene 1024 paginas y solo necesitamos 3, la tarea ocupa una sola tabla de paginas.
 Por lo tanto se necesitaran 5 paginas, una para el directorio, otra para la tabla y otras 3 requeridas por la tarea. 
+
+f) La TLB es una cache de traducciones utilizada para acelerar el proceso de traduccion. Es necesario invalidarlo al modificar las estructuras de paginacion ya que sino se podria estar accediendo a una traduccion vieja dada por una direccion lineal.
+Cada traduccion en la TLB posee los siguientes atributos:
+    - La direccion de memoria fisica
+    - Flags de permisos y privilegios(R/W, U/S, etc)
+    - Flags de estado (Dirty flag (D), memory type, etc.)
+
+
