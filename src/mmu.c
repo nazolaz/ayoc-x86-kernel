@@ -54,6 +54,8 @@ void mmu_init(void) {}
  * @return devuelve la dirección de memoria de comienzo de la próxima página libre de kernel
  */
 paddr_t mmu_next_free_kernel_page(void) {
+  next_free_kernel_page += PAGE_SIZE;
+  return next_free_kernel_page - PAGE_SIZE;
 }
 
 /**
@@ -61,6 +63,8 @@ paddr_t mmu_next_free_kernel_page(void) {
  * @return devuelve la dirección de memoria de comienzo de la próxima página libre de usuarix
  */
 paddr_t mmu_next_free_user_page(void) {
+  next_free_user_page += PAGE_SIZE;
+  return next_free_user_page - PAGE_SIZE;
 }
 
 /**
@@ -70,6 +74,15 @@ paddr_t mmu_next_free_user_page(void) {
  * de páginas usado por el kernel
  */
 paddr_t mmu_init_kernel_dir(void) {
+  zero_page(kpd);
+  kpd[0].pt = VIRT_PAGE_TABLE(KERNEL_PAGE_TABLE_0); /* ayuda */
+  kpd[0].attrs = 0b11;
+  zero_page(kpt);
+  for (uint32_t i = 0 ; i < 1024; i++){
+    kpt[i].attrs = 0b11;
+    kpt[i].page = i;
+  }
+  return KERNEL_PAGE_DIR;
 }
 
 /**

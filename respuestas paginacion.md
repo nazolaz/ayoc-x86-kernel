@@ -1,5 +1,7 @@
 PREGUNTAS 
     - e) Cada directorio ocupa una pagina??? No es una idea medio recursiva eso?????? ayuda
+    - porque inicializamos solo un page directory?????
+    - corregir mmu_init_kernel_dir, preguntar como va iterando sobre el array ese for.... ¿cada cuanto vamos indexando sobre el array?
 __________________
 
 a) Podemos definir dos niveles de privilegio en dos partes del proceso de paginacion, utilizando el atributo U/S en las entradas de las siguientes estructuras:
@@ -44,5 +46,4 @@ Cada traduccion en la TLB posee los siguientes atributos:
     - La direccion de memoria fisica
     - Flags de permisos y privilegios(R/W, U/S, etc)
     - Flags de estado (Dirty flag (D), memory type, etc.)
-
-
+Al ser su unica funcion la de almacenar cache temporal, invalidar la TLB no afecta las tablas de paginas en memoria. 

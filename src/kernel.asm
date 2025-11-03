@@ -17,6 +17,7 @@ extern pic_enable
 %define VIDEO_COLS  80
 %define GDT_IDX_CODE_0 1
 %define GDT_IDX_DATA_0 3
+%define KERNEL_PAGE_DIR 0x00025000
 
 
 global start
@@ -112,16 +113,20 @@ modo_protegido:
     ; ||     (Parte 3: Paginación)     ||
     ; ===================================
 
-    ; COMPLETAR - los defines para la MMU en defines.h
-    ; COMPLETAR - las funciones en mmu.c
-    ; COMPLETAR - reemplazar la implementacion de la interrupcion 88 (ver comentarios en isr.asm)
+    ; COMPLETAR - los defines para la MMU en defines.h □ 
+    ; COMPLETAR - las funciones en mmu.c □
+    ; COMPLETAR - reemplazar la implementacion de la interrupcion 88 (ver comentarios en isr.asm) para despues
     ; COMPLETAR - La rutina de atención del page fault en isr.asm
     ; COMPLETAR - Inicializar el directorio de paginas
+    call mmu_init_kernel_dir
 
     ; COMPLETAR - Cargar directorio de paginas 
+    mov cr3, eax
 
     ; COMPLETAR - Habilitar paginacion 
-
+    mov eax, cr0
+    or eax, 0x80000000 
+    mov cr0, eax
     ; ========================
     ; ||  (Parte 4: Tareas) ||
     ; ========================
