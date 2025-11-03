@@ -94,6 +94,20 @@ paddr_t mmu_init_kernel_dir(void) {
  * @param attrs los atributos a asignar en la entrada de la tabla de páginas
  */
 void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
+  pd_entry_t* pd = CR3_TO_PAGE_DIR(cr3);
+  uint32_t pd_index =  VIRT_PAGE_DIR(virt);
+  pd_entry_t pde = pd[pd_index];
+  pt_entry_t* pt = pde.pt;
+  uint32_t pt_index = VIRT_PAGE_TABLE(virt);
+  pt_entry_t pte = pt[pt_index];
+  
+  if (!(pte.attrs & 0b1)){
+    pte.page = phy;
+    pte.attrs = attrs;
+  }
+
+  tlbflush;
+  
 }
 
 /**

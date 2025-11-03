@@ -10,6 +10,7 @@ extern IDT_DESC
 extern idt_init
 extern pic_reset
 extern pic_enable
+extern mmu_init_kernel_dir
 
 ;NO SUPIMOS COMO INCLUIR LOS DEFINES 
 %define C_FG_CYAN   0x3
