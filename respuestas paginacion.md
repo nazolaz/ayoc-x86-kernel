@@ -2,6 +2,7 @@ PREGUNTAS
     - e) Cada directorio ocupa una pagina??? No es una idea medio recursiva eso?????? ayuda
     - porque inicializamos solo un page directory?????
     - corregir mmu_init_kernel_dir, preguntar como va iterando sobre el array ese for.... ¿cada cuanto vamos indexando sobre el array?
+    - que pasa con los segment selectors cuando arrancamos la paginacion 
 __________________
 
 a) Podemos definir dos niveles de privilegio en dos partes del proceso de paginacion, utilizando el atributo U/S en las entradas de las siguientes estructuras:

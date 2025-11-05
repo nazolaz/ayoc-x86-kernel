@@ -77,7 +77,7 @@ paddr_t mmu_next_free_user_page(void) {
  /*  */
 paddr_t mmu_init_kernel_dir(void) {
   zero_page(kpd);
-  kpd[0].pt = MMU_ENTRY_VADDR(KERNEL_PAGE_TABLE_0);
+  kpd[0].pt = MMU_ENTRY_FRAME(KERNEL_PAGE_TABLE_0);
   kpd[0].attrs = 0b11;
   zero_page(kpt);
   for (uint32_t i = 0 ; i < 1024; i++){
@@ -97,37 +97,36 @@ paddr_t mmu_init_kernel_dir(void) {
  */
 
 void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
-  pd_entry_t* pd = CR3_TO_PAGE_DIR(cr3);
+  pd_entry_t* pd = MMU_ENTRY_FRAME(CR3_TO_PAGE_DIR(cr3));
   uint32_t pd_index =  VIRT_PAGE_DIR(virt);
   uint32_t pt_index = VIRT_PAGE_TABLE(virt);
 
-  pd_entry_t pde = pd[pd_index];
+  pd_entry_t* pde = &pd[pd_index];
 
-  if (pde.attrs & 0b1){ /* si el pde esta activo */
-    pde.attrs = pde.attrs | attrs; /* hacemos que quede el atributo mas permisivo */
-    pt_entry_t* pt = pde.pt;                        
-    pt_entry_t pte = pt[pt_index];                 
+  if (pde->attrs & 0b1){ /* si el pde esta activo */
+    pde->attrs = pde->attrs | attrs; /* hacemos que quede el atributo mas permisivo */
+    pt_entry_t* pt = pde->pt;                        
+    pt_entry_t* pte = &pt[pt_index];                 
     /* pisamos pte directamente */
-    pte.attrs = attrs;
-    pte.page = MMU_ENTRY_VADDR(phy); 
+    pte->attrs = attrs;
+    pte->page = MMU_ENTRY_FRAME(phy); 
   }
 
   else{ /* la pd entry no esta inicializada */
     /* inicializamos la PDE */
     pd_entry_t newPDE;
     newPDE.attrs = attrs;
-    pd[pd_index] = newPDE;
 
     /* inicializamos la PT asociada a la nueva PDE*/
     uint32_t PTAddress = mmu_next_free_kernel_page(); 
-    pt_entry_t* PT = (pt_entry_t*)PTAddress;
+    pt_entry_t* PT = PTAddress;
     zero_page(PTAddress);
 
     /* definimos el mapeo */
     PT[pt_index].attrs = attrs;
-    PT[pt_index].page = MMU_ENTRY_VADDR(phy);
+    PT[pt_index].page = MMU_ENTRY_FRAME(phy);
 
-    newPDE.pt = MMU_ENTRY_VADDR(PTAddress);
+    newPDE.pt = MMU_ENTRY_FRAME(PTAddress);
     pd[pd_index] = newPDE;
   }
 
@@ -141,7 +140,7 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
  * @return la dirección física de la página desvinculada
  */
 paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) { 
-  pd_entry_t* pd = CR3_TO_PAGE_DIR(cr3);
+  pd_entry_t* pd = MMU_ENTRY_FRAME(CR3_TO_PAGE_DIR(cr3));
   uint32_t pd_index =  VIRT_PAGE_DIR(virt);
   uint32_t pt_index = VIRT_PAGE_TABLE(virt);
 
@@ -172,15 +171,19 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) {
  * Esta función mapea ambas páginas a las direcciones SRC_VIRT_PAGE y DST_VIRT_PAGE, respectivamente, realiza
  * la copia y luego desmapea las páginas. Usar la función rcr3 definida en i386.h para obtener el cr3 actual
  */
-void copy_page(paddr_t dst_addr, paddr_t src_addr) {
+void copy_page(paddr_t dst_addr, paddr_t src_addr) { /* no se puede acceder a una fisica directamente, los accesos a memoria son desde virtuales*/
   uint32_t cr3 = rcr3();
 
-  pd_entry_t* pd = CR3_TO_PAGE_DIR(cr3);
-  uint32_t pd_index_src = VIRT_PAGE_DIR(SRC_VIRT_PAGE);
-  uint32_t pt_index_src = VIRT_PAGE_TABLE(SRC_VIRT_PAGE);
-  uint32_t pd_index_dst = VIRT_PAGE_DIR(DST_VIRT_PAGE);
-  uint32_t pt_index_dst = VIRT_PAGE_TABLE(DST_VIRT_PAGE);
+  mmu_map_page(cr3, SRC_VIRT_PAGE, src_addr, 0b11);
+  mmu_map_page(cr3, DST_VIRT_PAGE, dst_addr, 0b11); /* el map tambien flushea */
 
+  for (uint32_t i = 0; i < PAGE_SIZE; i++){
+    ((uint8_t*)DST_VIRT_PAGE)[i] = ((uint8_t*)SRC_VIRT_PAGE)[i];
+  } 
+
+  mmu_unmap_page(cr3, DST_VIRT_PAGE);
+  mmu_unmap_page(cr3, SRC_VIRT_PAGE); /* este unmap flushea por ultima vez */
+  return;
 }
 
  /**

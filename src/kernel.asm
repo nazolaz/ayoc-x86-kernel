@@ -10,6 +10,7 @@ extern IDT_DESC
 extern idt_init
 extern pic_reset
 extern pic_enable
+extern copy_page
 extern mmu_init_kernel_dir
 
 ;NO SUPIMOS COMO INCLUIR LOS DEFINES 
@@ -131,6 +132,13 @@ modo_protegido:
     ; ========================
     ; ||  (Parte 4: Tareas) ||
     ; ========================
+
+    mov eax, 0xB00000
+    push eax
+    mov eax, 0xA00000
+    push eax
+    call copy_page
+    add esp, 8
 
     ; COMPLETAR - reemplazar la implementacion de la interrupcion 88 (ver comentarios en isr.asm)
     ; COMPLETAR - las funciones en tss.c
