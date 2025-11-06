@@ -118,11 +118,9 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
   pd[pd_index].attrs = pd[pd_index].attrs | attrs | 0b1;
   // Obtengo la tabla correspondiente
   pt_entry_t* pt = (pt_entry_t*) MMU_ENTRY_PADDR(pd[pd_index].pt);
-    /*ACA NO ESTAMOS CASTEANDO A MEMORIA FISICA?????? 
-      PERO DESPUES USAMOS pt[pt_index]... POR LO QUE AL FINAL USAMOS
-      COMO PUNTERO pt A UNA ADDRESS FISICA*/
+
   // Configuramos la entrada de la página
-  pt[pt_index].page = MMU_ENTRY_PADDR(phy);
+  pt[pt_index].page = MMU_ENTRY_FRAME(phy);
   pt[pt_index].attrs = attrs | 0b1;
 
   tlbflush();
@@ -147,7 +145,7 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) {
 
   /* desmapeamos */
   pt[pt_index].attrs = 0;
-  zero_page(paddr);
+  /* no hacemos zero_page por que puede haber otros maps a esa pag*/
   tlbflush();
   return paddr;
 
@@ -174,8 +172,8 @@ void copy_page(paddr_t dst_addr, paddr_t src_addr) { /* no se puede acceder a un
     ((uint8_t*)DST_VIRT_PAGE)[i] = ((uint8_t*)SRC_VIRT_PAGE)[i];
   } 
 
-  mmu_unmap_page(cr3, DST_VIRT_PAGE);
-  mmu_unmap_page(cr3, SRC_VIRT_PAGE); /* este unmap flushea por ultima vez */
+  mmu_unmap_page(cr3, SRC_VIRT_PAGE);
+  mmu_unmap_page(cr3, DST_VIRT_PAGE); /* este unmap flushea por ultima vez */
   return;
 }
 
