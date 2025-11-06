@@ -97,37 +97,39 @@ paddr_t mmu_init_kernel_dir(void) {
  */
 
 void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
-  pd_entry_t* pd = MMU_ENTRY_FRAME(CR3_TO_PAGE_DIR(cr3));
+  pd_entry_t* pd = MMU_ENTRY_FRAME(cr3);
   uint32_t pd_index =  VIRT_PAGE_DIR(virt);
   uint32_t pt_index = VIRT_PAGE_TABLE(virt);
 
   pd_entry_t* pde = &pd[pd_index];
 
   if (pde->attrs & 0b1){ /* si el pde esta activo */
-    pde->attrs = pde->attrs | attrs; /* hacemos que quede el atributo mas permisivo */
-    pt_entry_t* pt = pde->pt;                        
+    pde->attrs = pde->attrs | attrs | 0b1; /* hacemos que quede el atributo mas permisivo */
+    pt_entry_t* pt = MMU_ENTRY_PADDR(pde->pt);                        
     pt_entry_t* pte = &pt[pt_index];                 
     /* pisamos pte directamente */
-    pte->attrs = attrs;
+    pte->attrs = attrs | 0b1;
     pte->page = MMU_ENTRY_FRAME(phy); 
   }
 
-  else{ /* la pd entry no esta inicializada */
+  else{ /* la pdentry no esta inicializada */
     /* inicializamos la PDE */
     pd_entry_t newPDE;
-    newPDE.attrs = attrs;
+    newPDE.attrs = attrs | 0b1;
 
     /* inicializamos la PT asociada a la nueva PDE*/
-    uint32_t PTAddress = mmu_next_free_kernel_page(); 
-    pt_entry_t* PT = PTAddress;
+    paddr_t PTAddress = mmu_next_free_kernel_page();
     zero_page(PTAddress);
 
-    /* definimos el mapeo */
-    PT[pt_index].attrs = attrs;
-    PT[pt_index].page = MMU_ENTRY_FRAME(phy);
+    pt_entry_t* pt = MMU_ENTRY_FRAME(PTAddress);
+    pt_entry_t* pte = &pt[pt_index];
+    pte->attrs = attrs | 0b1;
+    pte->page = MMU_ENTRY_FRAME(phy);
 
+    /* definimos la direccion a la pt del nuevo pde */
     newPDE.pt = MMU_ENTRY_FRAME(PTAddress);
     pd[pd_index] = newPDE;
+
   }
 
   tlbflush();
