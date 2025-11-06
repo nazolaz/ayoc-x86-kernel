@@ -118,7 +118,9 @@ void mmu_map_page(uint32_t cr3, vaddr_t virt, paddr_t phy, uint32_t attrs) {
   pd[pd_index].attrs = pd[pd_index].attrs | attrs | 0b1;
   // Obtengo la tabla correspondiente
   pt_entry_t* pt = (pt_entry_t*) MMU_ENTRY_PADDR(pd[pd_index].pt);
-
+    /*ACA NO ESTAMOS CASTEANDO A MEMORIA FISICA?????? 
+      PERO DESPUES USAMOS pt[pt_index]... POR LO QUE AL FINAL USAMOS
+      COMO PUNTERO pt A UNA ADDRESS FISICA*/
   // Configuramos la entrada de la página
   pt[pt_index].page = MMU_ENTRY_PADDR(phy);
   pt[pt_index].attrs = attrs | 0b1;
@@ -183,7 +185,7 @@ void copy_page(paddr_t dst_addr, paddr_t src_addr) { /* no se puede acceder a un
  * @return el contenido que se ha de cargar en un registro CR3 para la tarea asociada a esta llamada
  */
 paddr_t mmu_init_task_dir(paddr_t phy_start) {
-  
+
 }
 
 // COMPLETAR: devuelve true si se atendió el page fault y puede continuar la ejecución 
