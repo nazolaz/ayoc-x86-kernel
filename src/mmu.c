@@ -80,6 +80,7 @@ paddr_t mmu_init_kernel_dir(void) {
   kpd[0].pt = MMU_ENTRY_FRAME(KERNEL_PAGE_TABLE_0);
   kpd[0].attrs = 0b11;
   zero_page(kpt);
+  /*identity mapping */
   for (uint32_t i = 0 ; i < 1024; i++){
     kpt[i].attrs = 0b11;
     kpt[i].page = i ;
@@ -182,14 +183,15 @@ void copy_page(paddr_t dst_addr, paddr_t src_addr) { /* no se puede acceder a un
  * @pararm phy_start es la dirección donde comienzan las dos páginas de código de la tarea asociada a esta llamada
  * @return el contenido que se ha de cargar en un registro CR3 para la tarea asociada a esta llamada
  */
+  /*mapear como solo lectura, a partir de la direccion virtual 0x08000000, el stack como r/w con base en 0x080030000 y 
+  la pagina de memoria compartida luego del stack. La memoria para la pila debe obtenerse del area libre de tareas*/
 paddr_t mmu_init_task_dir(paddr_t phy_start) { 
   uint32_t cr3 = CR3_TO_PAGE_DIR(mmu_next_free_kernel_page());
   pd_entry_t* pd = cr3;
   zero_page(cr3);
   
-  for (uint32_t i = 0 ; i < 1024; i++){
-    pd[i].attrs = 0b11;
-    pd[i].pt = i;
+  for (int i = 0; i < 1024*PAGE_SIZE; i += PAGE_SIZE) {
+      mmu_map_page(cr3, i, i, 0x003);
   }
   
   mmu_map_page(cr3, TASK_CODE_VIRTUAL, phy_start, 0b101); // mapeamos la primera seccion de codigo  
@@ -206,13 +208,12 @@ paddr_t mmu_init_task_dir(paddr_t phy_start) {
 // y false si no se pudo atender
 bool page_fault_handler(vaddr_t virt) {
   print("Atendiendo page fault...", 0, 0, C_FG_WHITE | C_BG_BLACK);
-  // Chequeemos si el acceso fue dentro del area on-demand
-  // En caso de que si, mapear la pagina
   uint32_t cr3 = rcr3();
+
   if (ON_DEMAND_MEM_START_VIRTUAL <= virt  && virt < ON_DEMAND_MEM_END_VIRTUAL){
     mmu_map_page(cr3, virt, ON_DEMAND_MEM_START_PHYSICAL, 0b111);
     return true;
   }
+
   return false;
 }
-

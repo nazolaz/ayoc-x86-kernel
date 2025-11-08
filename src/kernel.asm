@@ -12,6 +12,7 @@ extern pic_reset
 extern pic_enable
 extern copy_page
 extern mmu_init_kernel_dir
+extern mmu_init_task_dir
 
 ;NO SUPIMOS COMO INCLUIR LOS DEFINES 
 %define C_FG_CYAN   0x3
@@ -20,6 +21,8 @@ extern mmu_init_kernel_dir
 %define GDT_IDX_CODE_0 1
 %define GDT_IDX_DATA_0 3
 %define KERNEL_PAGE_DIR 0x00025000
+%define ON_DEMAND_MEM_START_VIRTUAL 0x07000000
+%define HIGHEST_BIT 0x80000000
 
 
 global start
@@ -127,13 +130,10 @@ modo_protegido:
 
     ; COMPLETAR - Habilitar paginacion 
     mov eax, cr0
-    or eax, 0x80000000 
+    or eax, HIGHEST_BIT 
     mov cr0, eax
-    ; ========================
-    ; ||  (Parte 4: Tareas) ||
-    ; ========================
-    
-    ; Ejercicio 3C
+
+    ;ejercicio 3)c. 
     ;mov eax, 0xB00000
     ;push eax
     ;mov eax, 0xA00000
@@ -141,7 +141,18 @@ modo_protegido:
     ;call copy_page
     ;add esp, 8
 
-    ; Ejercicio 3F
+    ;ejercicio 3)f.
+    push 0x18000
+    call mmu_init_task_dir
+    add esp, 4
+    mov cr3, eax        
+    
+    mov dword [0x07000000], 0x1234567
+    mov dword [0x70000000], 0x3463433
+    ; ========================
+    ; ||  (Parte 4: Tareas) ||
+    ; ========================
+
 
     ; COMPLETAR - reemplazar la implementacion de la interrupcion 88 (ver comentarios en isr.asm)
     ; COMPLETAR - las funciones en tss.c
