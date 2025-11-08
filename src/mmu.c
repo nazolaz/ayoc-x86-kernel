@@ -182,8 +182,24 @@ void copy_page(paddr_t dst_addr, paddr_t src_addr) { /* no se puede acceder a un
  * @pararm phy_start es la dirección donde comienzan las dos páginas de código de la tarea asociada a esta llamada
  * @return el contenido que se ha de cargar en un registro CR3 para la tarea asociada a esta llamada
  */
-paddr_t mmu_init_task_dir(paddr_t phy_start) {
+paddr_t mmu_init_task_dir(paddr_t phy_start) { 
+  uint32_t cr3 = CR3_TO_PAGE_DIR(mmu_next_free_kernel_page());
+  pd_entry_t* pd = cr3;
+  zero_page(cr3);
+  
+  for (uint32_t i = 0 ; i < 1024; i++){
+    pd[i].attrs = 0b11;
+    pd[i].pt = i;
+  }
+  
+  mmu_map_page(cr3, TASK_CODE_VIRTUAL, phy_start, 0b101); // mapeamos la primera seccion de codigo  
+  mmu_map_page(cr3, TASK_CODE_VIRTUAL + PAGE_SIZE, phy_start + PAGE_SIZE, 0b101); // mapeamos la segunda seccion de codigo
+ 
+  /* para el stack usamos pagina de usuario */
+  mmu_map_page(cr3, TASK_STACK_BASE - PAGE_SIZE, mmu_next_free_user_page(), 0b111);
+  mmu_map_page(cr3, TASK_SHARED_PAGE, SHARED, 0b111);
 
+  return cr3;
 }
 
 // COMPLETAR: devuelve true si se atendió el page fault y puede continuar la ejecución 
@@ -192,4 +208,11 @@ bool page_fault_handler(vaddr_t virt) {
   print("Atendiendo page fault...", 0, 0, C_FG_WHITE | C_BG_BLACK);
   // Chequeemos si el acceso fue dentro del area on-demand
   // En caso de que si, mapear la pagina
+  uint32_t cr3 = rcr3();
+  if (ON_DEMAND_MEM_START_VIRTUAL <= virt  && virt < ON_DEMAND_MEM_END_VIRTUAL){
+    mmu_map_page(cr3, virt, ON_DEMAND_MEM_START_PHYSICAL, 0b111);
+    return true;
+  }
+  return false;
 }
+

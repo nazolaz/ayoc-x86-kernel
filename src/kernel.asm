@@ -132,13 +132,16 @@ modo_protegido:
     ; ========================
     ; ||  (Parte 4: Tareas) ||
     ; ========================
+    
+    ; Ejercicio 3C
+    ;mov eax, 0xB00000
+    ;push eax
+    ;mov eax, 0xA00000
+    ;push eax
+    ;call copy_page
+    ;add esp, 8
 
-    mov eax, 0xB00000
-    push eax
-    mov eax, 0xA00000
-    push eax
-    call copy_page
-    add esp, 8
+    ; Ejercicio 3F
 
     ; COMPLETAR - reemplazar la implementacion de la interrupcion 88 (ver comentarios en isr.asm)
     ; COMPLETAR - las funciones en tss.c
