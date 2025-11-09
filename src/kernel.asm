@@ -142,13 +142,19 @@ modo_protegido:
     ;add esp, 8
 
     ;ejercicio 3)f.
-    push 0x18000
+    mov eax, cr3
+    push eax
+    push 0x00018000
     call mmu_init_task_dir
-    add esp, 4
     mov cr3, eax        
     
-    mov dword [0x07000000], 0x1234567
-    mov dword [0x70000000], 0x3463433
+    mov byte [0x07000010], 3
+    mov byte [0x07000010], 3
+
+    pop eax
+    pop eax
+    mov cr3, eax
+    
     ; ========================
     ; ||  (Parte 4: Tareas) ||
     ; ========================

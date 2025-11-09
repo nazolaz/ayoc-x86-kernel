@@ -149,12 +149,20 @@ _isr14:
   mov eax, cr2
   push eax
   call page_fault_handler
-  add esp, 4
 
-  popad
-  iret
+  cmp al, 1
+  je onDemand
 
-;; Rutina de atención del RELOJ
+  call kernel_exception; .ring0_exception??
+  jmp $; bucle de saltos
+
+  onDemand:
+    add esp, 4
+    popad
+    pop eax 
+    iret
+
+;; Rutina de atención del RELOJ 
 ;; -------------------------------------------------------------------------- ;;
 global _isr32
 ; COMPLETAR (Parte 2: Interrupciones): La rutina se encuentra escrita parcialmente. Completar la rutina
@@ -206,7 +214,7 @@ global _isr88
 ; Para las secciones de paginación y tareas: que llame a la funcion task_syscall_draw
 _isr88:
   pushad
-  push eax
+  push eax ; toma parametro por pila
   call tasks_syscall_draw
   add esp, 4 
   popad

@@ -149,7 +149,6 @@ paddr_t mmu_unmap_page(uint32_t cr3, vaddr_t virt) {
   /* no hacemos zero_page por que puede haber otros maps a esa pag*/
   tlbflush();
   return paddr;
-
 }
 
 #define DST_VIRT_PAGE 0xA00000
@@ -190,8 +189,8 @@ paddr_t mmu_init_task_dir(paddr_t phy_start) {
   pd_entry_t* pd = cr3;
   zero_page(cr3);
   
-  for (int i = 0; i < 1024*PAGE_SIZE; i += PAGE_SIZE) {
-      mmu_map_page(cr3, i, i, 0x003);
+  for (uint32_t i = 0; i < 1024*PAGE_SIZE; i += PAGE_SIZE) {
+      mmu_map_page(cr3, i, i, 0b11);
   }
   
   mmu_map_page(cr3, TASK_CODE_VIRTUAL, phy_start, 0b101); // mapeamos la primera seccion de codigo  
@@ -199,7 +198,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start) {
  
   /* para el stack usamos pagina de usuario */
   mmu_map_page(cr3, TASK_STACK_BASE - PAGE_SIZE, mmu_next_free_user_page(), 0b111);
-  mmu_map_page(cr3, TASK_SHARED_PAGE, SHARED, 0b111);
+  mmu_map_page(cr3, TASK_SHARED_PAGE, SHARED, 0b101);
 
   return cr3;
 }
@@ -210,7 +209,7 @@ bool page_fault_handler(vaddr_t virt) {
   print("Atendiendo page fault...", 0, 0, C_FG_WHITE | C_BG_BLACK);
   uint32_t cr3 = rcr3();
 
-  if (ON_DEMAND_MEM_START_VIRTUAL <= virt  && virt < ON_DEMAND_MEM_END_VIRTUAL){
+  if (ON_DEMAND_MEM_START_VIRTUAL <= virt  && virt <= ON_DEMAND_MEM_END_VIRTUAL){
     mmu_map_page(cr3, virt, ON_DEMAND_MEM_START_PHYSICAL, 0b111);
     return true;
   }
