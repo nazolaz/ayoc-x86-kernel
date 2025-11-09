@@ -95,9 +95,6 @@ tss_t tss_create_user_task(paddr_t code_start) {
  * Inicializa las primeras entradas de tss (inicial y idle)
  */
 void tss_init(void) {
-/*ENUNCIADO
-  // COMPLETAR
-  gdt[GDT_IDX_TASK_IDLE] = tss_gdt_entry_for_task(??);
-  gdt[GDT_IDX_TASK_INITIAL] = ??;
-END*/
+  gdt[GDT_IDX_TASK_IDLE] = tss_gdt_entry_for_task(&tss_idle);
+  gdt[GDT_IDX_TASK_INITIAL] = tss_gdt_entry_for_task(&tss_initial);
 }

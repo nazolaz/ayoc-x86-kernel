@@ -153,7 +153,7 @@ _isr14:
   cmp al, 1
   je onDemand
 
-  call kernel_exception; .ring0_exception??
+  call kernel_exception;
   jmp $; bucle de saltos
 
   onDemand:

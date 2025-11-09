@@ -13,6 +13,8 @@ extern pic_enable
 extern copy_page
 extern mmu_init_kernel_dir
 extern mmu_init_task_dir
+extern tss_init
+extern tasks_screen_draw
 
 ;NO SUPIMOS COMO INCLUIR LOS DEFINES 
 %define C_FG_CYAN   0x3
@@ -23,6 +25,8 @@ extern mmu_init_task_dir
 %define KERNEL_PAGE_DIR 0x00025000
 %define ON_DEMAND_MEM_START_VIRTUAL 0x07000000
 %define HIGHEST_BIT 0x80000000
+%define GDT_IDX_TASK_INITIAL_SELECTOR (11 << 3)
+%define GDT_IDX_TASK_IDLE_SELECTOR (12 << 3)
 
 
 global start
@@ -133,37 +137,34 @@ modo_protegido:
     or eax, HIGHEST_BIT 
     mov cr0, eax
 
-    ;ejercicio 3)c. 
-    ;mov eax, 0xB00000
-    ;push eax
-    ;mov eax, 0xA00000
-    ;push eax
-    ;call copy_page
-    ;add esp, 8
-
-    ;ejercicio 3)f.
-    mov eax, cr3
-    push eax
-    push 0x00018000
-    call mmu_init_task_dir
-    mov cr3, eax        
+    ; ejercicio 3F.
+    ; mov eax, cr3
+    ; push eax
+    ; push 0x00018000
+    ; call mmu_init_task_dir
+    ; mov cr3, eax        
     
-    mov byte [0x07000010], 3
-    mov byte [0x07000010], 3
+    ; mov byte [0x3000000], 3
+    ; mov byte [0x3000000], 3
 
-    pop eax
-    pop eax
-    mov cr3, eax
+    ; pop eax
+    ; pop eax
+    ; mov cr3, eax
     
     ; ========================
     ; ||  (Parte 4: Tareas) ||
     ; ========================
 
-
     ; COMPLETAR - reemplazar la implementacion de la interrupcion 88 (ver comentarios en isr.asm)
     ; COMPLETAR - las funciones en tss.c
     ; COMPLETAR - Inicializar tss
+    call tss_init
+    call tasks_screen_draw
 
+    mov ax,  GDT_IDX_TASK_INITIAL_SELECTOR
+    ltr ax
+    jmp GDT_IDX_TASK_IDLE_SELECTOR:0x0
+    
     ; COMPLETAR - Inicializar el scheduler
 
     ; COMPLETAR - Inicializar las tareas
@@ -223,3 +224,11 @@ modo_protegido:
 ;; -------------------------------------------------------------------------- ;;
 
 %include "a20.asm"
+
+   ;ejercicio 3C. 
+    ;mov eax, 0xB00000
+    ;push eax
+    ;mov eax, 0xA00000
+    ;push eax
+    ;call copy_page
+    ;add esp, 8
