@@ -70,7 +70,6 @@ void screen_draw_box(uint32_t fInit, uint32_t cInit, uint32_t fSize,
 }
 
 void screen_draw_layout(void) {
-  screen_draw_box(0, 0, VIDEO_FILS, VIDEO_COLS, '#', 0x00); //Limpiar pantalla
   ca(*p)[VIDEO_COLS] = (ca(*)[VIDEO_COLS])VIDEO;
 
     int coloreado[][2] = { 

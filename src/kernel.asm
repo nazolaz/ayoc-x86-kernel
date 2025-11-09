@@ -62,7 +62,7 @@ start:
     ; ||  Salto a modo protegido  ||
     ; ==============================
 
-    ; COMPLETAR - Deshabilitar interrupciones (Parte 1: Pasake a modo protegido)
+    ;deshabilitamos interrupciones
     cli
 
     ; Cambiar modo de video a 80 X 50
@@ -72,36 +72,29 @@ start:
     mov ax, 1112h
     int 10h ; load 8x8 font
 
-    ; COMPLETAR - Imprimir mensaje de bienvenida - MODO REAL (Parte 1: Pasake a modo protegido)
-    ; (revisar las funciones definidas en print.mac y los mensajes se encuentran en la
-    ; sección de datos)
+    ;bienvenida a modo real
     print_text_rm start_rm_msg, start_rm_len, C_FG_CYAN, 0, 0
 
-    ; COMPLETAR - Habilitar A20 (Parte 1: Pasake a modo protegido)
-    ; (revisar las funciones definidas en a20.asm)
+    ;habilitamos A20
     call A20_check
     call A20_disable
     call A20_check
     call A20_enable
 
-    ; COMPLETAR - los defines para la GDT en defines.h y las entradas de la GDT en gdt.c
-    ; COMPLETAR - Cargar la GDT (Parte 1: Pasake a modo protegido)
+    ; cargamos la GDT
     lgdt [GDT_DESC]
-    ; COMPLETAR - Setear el bit PE del registro CR0 (Parte 1: Pasake a modo protegido)
+
+    ;seteamos el bit PE del cr0 para pasar a modo protegido
     mov eax, cr0
     or eax, 0x1
     mov cr0, eax
 
-    ; COMPLETAR - Saltar a modo protegido (far jump) (Parte 1: Pasake a modo protegido)
-    ; (recuerden que un far jmp se especifica como jmp CS_selector:address)
-    ; Pueden usar la constante CS_RING_0_SEL definida en este archivo
+    ; salto a modo protegido
     jmp CS_RING_0_SEL:modo_protegido
 
 BITS 32
 modo_protegido:
-    ; COMPLETAR (Parte 1: Pasake a modo protegido) - A partir de aca, todo el codigo se va a ejectutar en modo protegido
-    ; Establecer selectores de segmentos DS, ES, GS, FS y SS en el segmento de datos de nivel 0
-    ; Pueden usar la constante DS_RING_0_SEL definida en este archivo
+    ; establecemos selectores de segmento en segmento de datos de nivel 0
     mov ax, DS_RING_0_SEL
     mov ds, ax
     mov es, ax
@@ -109,60 +102,47 @@ modo_protegido:
     mov fs, ax
     mov ss, ax
 
-    ; COMPLETAR - Establecer el tope y la base de la pila (Parte 1: Pasake a modo protegido)
+    ;establecemos pila
     mov esp, 0x25000
     mov ebp, esp
 
-    ; COMPLETAR - Imprimir mensaje de bienvenida - MODO PROTEGIDO (Parte 1: Pasake a modo protegido)
+    ;bienvenida a modo protegido
     print_text_pm start_pm_msg, start_pm_len, C_FG_CYAN, 30, 0
-    ; COMPLETAR - Inicializar pantalla (Parte 1: Pasake a modo protegido)
+
+    ;inicializamos pantalla
     call screen_draw_layout
     
-    ; ===================================
-    ; ||     (Parte 3: Paginación)     ||
-    ; ===================================
-
-    ; COMPLETAR - los defines para la MMU en defines.h □ 
-    ; COMPLETAR - las funciones en mmu.c □
-    ; COMPLETAR - reemplazar la implementacion de la interrupcion 88 (ver comentarios en isr.asm) para despues
-    ; COMPLETAR - La rutina de atención del page fault en isr.asm
-    ; COMPLETAR - Inicializar el directorio de paginas
+    ;inicializamos directorio de kernel
     call mmu_init_kernel_dir
 
-    ; COMPLETAR - Cargar directorio de paginas 
+    ;cargamos directorio de paginas 
     mov cr3, eax
 
-    ; COMPLETAR - Habilitar paginacion 
+    ;habilitamos paginacion
     mov eax, cr0
     or eax, HIGHEST_BIT 
     mov cr0, eax
-
-    ; ejercicio 3F.
-    mov eax, cr3
-    push eax
-    push 0x00018000
-    call mmu_init_task_dir
-    mov cr3, eax        
     
-    mov byte [0x0700000], 3
-    mov byte [0x0700000], 3
+    ;cargamos la IDT
+    call idt_init
+    lidt [IDT_DESC]
 
-    pop eax
-    pop eax
-    mov cr3, eax
-    
-    ; ========================
-    ; ||  (Parte 4: Tareas) ||
-    ; ========================
+    ;reiniciamos y habilitamos el controlador de interrupciones 
+    call pic_reset  ; remapeamos PIC
+    call pic_enable ; habilitamos PIC
+    sti             ; habilitamos interrupciones
 
-    ; COMPLETAR - reemplazar la implementacion de la interrupcion 88 (ver comentarios en isr.asm)
-    ; COMPLETAR - las funciones en tss.c
-    ; COMPLETAR - Inicializar tss
+    ;inicializamos gdt entries con sus tss para tarea idle e inicial
     call tss_init
+
+    ;preparamos pantalla para nuestras tareas
     call tasks_screen_draw
 
+    ;cargamos la tarea inicial en la TR
     mov ax, GDT_IDX_TASK_INITIAL_SELECTOR
     ltr ax
+
+    ;saltamos a la tarea IDLE
     jmp GDT_IDX_TASK_IDLE_SELECTOR:0x0
     
     ; COMPLETAR - Inicializar el scheduler
@@ -177,14 +157,8 @@ modo_protegido:
     ; COMPLETAR - las funciones en idt.c
     
     ; COMPLETAR - Inicializar y cargar la IDT
-    call idt_init
-    lidt [IDT_DESC]
 
-    ; COMPLETAR - Reiniciar y habilitar el controlador de interrupciones (ver pic.c)
-    call pic_reset  ; remapeamos PIC
-    call pic_enable ; habilitamos PIC
-    sti             ; habilitamos interrupciones
-
+; ejercicio 3F.
     ; COMPLETAR - Rutinas de atención de reloj, teclado, e interrupciones 88 y 89 (en isr.asm)
 
     ; ejemplo sysall interrupciones
@@ -234,3 +208,17 @@ modo_protegido:
     ;push eax
     ;call copy_page
     ;add esp, 8
+
+   ;ejercicio 3F
+    ; mov eax, cr3
+    ; push eax
+    ; push 0x00018000
+    ; call mmu_init_task_dir
+    ; mov cr3, eax        
+    
+    ; mov byte [0x07000001], 3
+    ; mov byte [0x07000001], 3
+
+    ; pop eax
+    ; pop eax
+    ; mov cr3, eax
