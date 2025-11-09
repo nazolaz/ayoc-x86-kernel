@@ -210,7 +210,7 @@ bool page_fault_handler(vaddr_t virt) {
   uint32_t cr3 = rcr3();
 
   if (ON_DEMAND_MEM_START_VIRTUAL <= virt  && virt <= ON_DEMAND_MEM_END_VIRTUAL){
-    mmu_map_page(cr3, virt, ON_DEMAND_MEM_START_PHYSICAL, 0b111);
+    mmu_map_page(cr3, ON_DEMAND_MEM_START_VIRTUAL, ON_DEMAND_MEM_START_PHYSICAL, 0b111);
     return true;
   }
 

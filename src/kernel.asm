@@ -138,18 +138,18 @@ modo_protegido:
     mov cr0, eax
 
     ; ejercicio 3F.
-    ; mov eax, cr3
-    ; push eax
-    ; push 0x00018000
-    ; call mmu_init_task_dir
-    ; mov cr3, eax        
+    mov eax, cr3
+    push eax
+    push 0x00018000
+    call mmu_init_task_dir
+    mov cr3, eax        
     
-    ; mov byte [0x3000000], 3
-    ; mov byte [0x3000000], 3
+    mov byte [0x0700000], 3
+    mov byte [0x0700000], 3
 
-    ; pop eax
-    ; pop eax
-    ; mov cr3, eax
+    pop eax
+    pop eax
+    mov cr3, eax
     
     ; ========================
     ; ||  (Parte 4: Tareas) ||
@@ -161,7 +161,7 @@ modo_protegido:
     call tss_init
     call tasks_screen_draw
 
-    mov ax,  GDT_IDX_TASK_INITIAL_SELECTOR
+    mov ax, GDT_IDX_TASK_INITIAL_SELECTOR
     ltr ax
     jmp GDT_IDX_TASK_IDLE_SELECTOR:0x0
     
@@ -186,8 +186,10 @@ modo_protegido:
     sti             ; habilitamos interrupciones
 
     ; COMPLETAR - Rutinas de atención de reloj, teclado, e interrupciones 88 y 89 (en isr.asm)
-    mov eax, 0x45
-    int 88
+
+    ; ejemplo sysall interrupciones
+    ; mov eax, 0x45
+    ; int 88
 
     ; COMPLETAR (Parte 4: Tareas)- Cargar tarea inicial
 

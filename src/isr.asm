@@ -149,6 +149,7 @@ _isr14:
   mov eax, cr2
   push eax
   call page_fault_handler
+  add esp, 4
 
   cmp al, 1
   je onDemand
@@ -157,9 +158,8 @@ _isr14:
   jmp $; bucle de saltos
 
   onDemand:
-    add esp, 4
     popad
-    pop eax 
+    add esp, 4
     iret
 
 ;; Rutina de atención del RELOJ 
