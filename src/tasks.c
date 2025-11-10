@@ -41,14 +41,14 @@ static paddr_t task_code_start[2] = {
 static int8_t create_task(tipo_e tipo) {
   size_t gdt_id;
   for (gdt_id = GDT_TSS_START; gdt_id < GDT_COUNT; gdt_id++) {
-    if (gdt[gdt_id].p == 0) {
+    if (gdt[gdt_id].p == 0) { //Itera hasta encontrar una gdt entry libre para colocar la tarea
       break;
     }
   }
   kassert(gdt_id < GDT_COUNT, "No hay entradas disponibles en la GDT");
 
-  int8_t task_id = sched_add_task(gdt_id << 3);
-  tss_tasks[task_id] = tss_create_user_task(task_code_start[tipo]);
+  int8_t task_id = sched_add_task(gdt_id << 3); // transforma el indice de la gdt en formato selector
+  tss_tasks[task_id] = tss_create_user_task(task_code_start[tipo]); //
   gdt[gdt_id] = tss_gdt_entry_for_task(&tss_tasks[task_id]);
   return task_id;
 }

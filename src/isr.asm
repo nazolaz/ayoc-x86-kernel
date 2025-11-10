@@ -167,24 +167,21 @@ _isr14:
 global _isr32
 ; COMPLETAR (Parte 2: Interrupciones): La rutina se encuentra escrita parcialmente. Completar la rutina
 _isr32:
-    pushad
-    ; 1. Le decimos al PIC que vamos a atender la interrupción
-    ; COMPLETAR
-    call pic_finish1    
-    ; 2. Imprimimos el reloj que gira en pantalla
-    ; COMPLETAR
-    call next_clock
-    ; 3. Realizamos el cambio de tareas en caso de ser necesario
-    ; COMPLETAR
-
-    .fin:
-    ; 3. Actualizamos las estructuras compartidas ante el tick del reloj
-    call tasks_tick
-    ; 4. Actualizamos la "interfaz" del sistema en pantalla
-    call tasks_screen_update
-
-    popad
-    iret
+  pushad
+  call pic_finish1
+  
+  call sched_next_task; devuelve selector a la siguiente tarea
+  
+  str cx; guarda TR actual en cx
+  cmp ax, cx; compara selector de sig tarea con el actual
+  je .fin; si son iguales va a fin
+  
+  mov word [sched_task_selector], ax
+  jmp far [sched_task_offset]
+  
+  .fin:
+  popad
+  iret
 
 ;; Rutina de atención del TECLADO
 ;; -------------------------------------------------------------------------- ;;
@@ -198,6 +195,7 @@ _isr33:
     in al, 0x60; in solo anda para el eax
 
     push eax
+    ;process_scancode antes de tareas
     call tasks_input_process; tasks_input_process es void
     add esp, 4
 

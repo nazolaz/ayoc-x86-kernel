@@ -15,6 +15,8 @@ extern mmu_init_kernel_dir
 extern mmu_init_task_dir
 extern tss_init
 extern tasks_screen_draw
+extern sched_init
+extern task_init
 
 ;NO SUPIMOS COMO INCLUIR LOS DEFINES 
 %define C_FG_CYAN   0x3
@@ -128,12 +130,16 @@ modo_protegido:
     lidt [IDT_DESC]
 
     ;reiniciamos y habilitamos el controlador de interrupciones 
-    call pic_reset  ; remapeamos PIC
-    call pic_enable ; habilitamos PIC
-    sti             ; habilitamos interrupciones
+    call pic_reset      ; remapeamos PIC
+    call pic_enable     ; habilitamos PIC
+    sti                 ; habilitamos interrupciones
 
     ;inicializamos gdt entries con sus tss para tarea idle e inicial
     call tss_init
+    ;inicializamos el scheduler
+    call sched_init
+    ;
+    call task_init
 
     ;preparamos pantalla para nuestras tareas
     call tasks_screen_draw
@@ -145,25 +151,8 @@ modo_protegido:
     ;saltamos a la tarea IDLE
     jmp GDT_IDX_TASK_IDLE_SELECTOR:0x0
     
-    ; COMPLETAR - Inicializar el scheduler
 
     ; COMPLETAR - Inicializar las tareas
-
-
-    ; ===================================
-    ; ||   (Parte 2: Interrupciones)   ||
-    ; ===================================
-
-    ; COMPLETAR - las funciones en idt.c
-    
-    ; COMPLETAR - Inicializar y cargar la IDT
-
-; ejercicio 3F.
-    ; COMPLETAR - Rutinas de atención de reloj, teclado, e interrupciones 88 y 89 (en isr.asm)
-
-    ; ejemplo sysall interrupciones
-    ; mov eax, 0x45
-    ; int 88
 
     ; COMPLETAR (Parte 4: Tareas)- Cargar tarea inicial
 

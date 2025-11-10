@@ -62,17 +62,11 @@ void tss_set(tss_t tss, int8_t task_id) {
  * Crea una tss con los valores por defecto y el eip code_start
  */
 tss_t tss_create_user_task(paddr_t code_start) {
-/* ENUNCIADO - DESCOMENTAR Y COMPLETAR
-  //COMPLETAR: es correcta esta llamada a mmu_init_task_dir?
   uint32_t cr3 = mmu_init_task_dir(code_start);
-  //COMPLETAR: asignar valor inicial de la pila de la tarea
-  vaddr_t stack = ??;
-  //COMPLETAR: dir. virtual de comienzo del codigo
-  vaddr_t code_virt = ??;
-  //COMPLETAR: pedir pagina de kernel para la pila de nivel cero
-  vaddr_t stack0 = ??;
-  //COMPLETAR: a donde deberia apuntar la pila de nivel cero?
-  vaddr_t esp0 = stack0 + ??;
+  vaddr_t stack = TASK_STACK_BASE;
+  vaddr_t code_virt = TASK_CODE_VIRTUAL;
+  vaddr_t stack0 = mmu_next_free_kernel_page();
+  vaddr_t esp0 = stack0 + PAGE_SIZE;
   return (tss_t) {
     .cr3 = cr3,
     .esp = stack,
@@ -88,7 +82,6 @@ tss_t tss_create_user_task(paddr_t code_start) {
     .esp0 = esp0,
     .eflags = EFLAGS_IF,
   };
-  END*/
 }
 
 /**
