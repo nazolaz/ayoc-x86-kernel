@@ -172,6 +172,9 @@ _isr32:
   
   call sched_next_task; devuelve selector a la siguiente tarea
   
+  cmp ax, 0
+  je .fin
+
   str cx; guarda TR actual en cx
   cmp ax, cx; compara selector de sig tarea con el actual
   je .fin; si son iguales va a fin

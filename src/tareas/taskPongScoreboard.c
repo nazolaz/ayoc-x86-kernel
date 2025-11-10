@@ -12,9 +12,7 @@ void task(void) {
 	// ¿Una tarea debe terminar en nuestro sistema?
 	while (true)
 	{
-	// Completar:
-	// - Pueden definir funciones auxiliares para imprimir en pantalla
-	// - Pueden usar `task_print`, `task_print_dec`, etc. 
+ 
 		syscall_draw(pantalla);
 	}
 }

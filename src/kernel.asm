@@ -16,7 +16,7 @@ extern mmu_init_task_dir
 extern tss_init
 extern tasks_screen_draw
 extern sched_init
-extern task_init
+extern tasks_init
 
 ;NO SUPIMOS COMO INCLUIR LOS DEFINES 
 %define C_FG_CYAN   0x3
@@ -138,8 +138,7 @@ modo_protegido:
     call tss_init
     ;inicializamos el scheduler
     call sched_init
-    ;
-    call task_init
+    call tasks_init
 
     ;preparamos pantalla para nuestras tareas
     call tasks_screen_draw
@@ -150,34 +149,13 @@ modo_protegido:
 
     ;saltamos a la tarea IDLE
     jmp GDT_IDX_TASK_IDLE_SELECTOR:0x0
-    
 
-    ; COMPLETAR - Inicializar las tareas
+    ;cambiamos divisor del PIT para acelerar ejec de tareas
+    mov ax, 1000
+    out 0x40, al
+    rol ax, 8
+    out 0x40, al
 
-    ; COMPLETAR (Parte 4: Tareas)- Cargar tarea inicial
-
-    ; COMPLETAR - Habilitar interrupciones (!! en etapas posteriores, evaluar si se debe comentar este código !!)
-    
-    ; NOTA: Pueden chequear que las interrupciones funcionen forzando a que se
-    ;       dispare alguna excepción (lo más sencillo es usar la instrucción
-    ;       `int3`)
-    ;int3
-
-    ; COMPLETAR - Probar Sys_call (para etapas posteriores, comentar este código)
-
-    ; COMPLETAR - Probar generar una excepción (para etapas posteriores, comentar este código)
-    
-    ; ========================
-    ; ||  (Parte 4: Tareas)  ||
-    ; ========================
-    
-    ; COMPLETAR - Inicializar el directorio de paginas de la tarea de prueba
-
-    ; COMPLETAR - Cargar directorio de paginas de la tarea
-
-    ; COMPLETAR - Restaurar directorio de paginas del kernel
-
-    ; COMPLETAR - Saltar a la primera tarea: Idle
 
     ; Ciclar infinitamente 
     mov eax, 0xFFFF
