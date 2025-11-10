@@ -29,6 +29,7 @@ extern tasks_init
 %define HIGHEST_BIT 0x80000000
 %define GDT_IDX_TASK_INITIAL_SELECTOR (11 << 3)
 %define GDT_IDX_TASK_IDLE_SELECTOR (12 << 3)
+%define DIVISOR 1000
 
 
 global start
@@ -151,7 +152,7 @@ modo_protegido:
     jmp GDT_IDX_TASK_IDLE_SELECTOR:0x0
 
     ;cambiamos divisor del PIT para acelerar ejec de tareas
-    mov ax, 1000
+    mov ax, DIVISOR
     out 0x40, al
     rol ax, 8
     out 0x40, al

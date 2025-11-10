@@ -183,6 +183,8 @@ _isr32:
   jmp far [sched_task_offset]
   
   .fin:
+  call tasks_tick
+  call tasks_screen_update
   popad
   iret
 
@@ -194,7 +196,7 @@ _isr33:
     pushad
     ; 1. Le decimos al PIC que vamos a atender la interrupción
     call pic_finish1
-    ; 2. Leemos la tecla desde el teclado y la procesamos con la funcion tasks_input_process
+    ; 2. Leemos la tecla desde el teclado y la procesamos con la funcion  tasks_input_process
     in al, 0x60; in solo anda para el eax
 
     push eax

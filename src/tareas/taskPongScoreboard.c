@@ -9,10 +9,12 @@
 
 void task(void) {
 	screen pantalla;
-	// ¿Una tarea debe terminar en nuestro sistema?
+
 	while (true)
 	{
- 
+		for (int i = 0; i < 3; i++ ){
+			
+		}
 		syscall_draw(pantalla);
 	}
 }
