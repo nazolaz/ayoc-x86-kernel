@@ -141,6 +141,12 @@ modo_protegido:
     call sched_init
     call tasks_init
 
+    ;cambiamos divisor del PIT para acelerar ejec de tareas
+    mov ax, DIVISOR
+    out 0x40, al
+    rol ax, 8
+    out 0x40, al
+
     ;preparamos pantalla para nuestras tareas
     call tasks_screen_draw
 
@@ -150,13 +156,6 @@ modo_protegido:
 
     ;saltamos a la tarea IDLE
     jmp GDT_IDX_TASK_IDLE_SELECTOR:0x0
-
-    ;cambiamos divisor del PIT para acelerar ejec de tareas
-    mov ax, DIVISOR
-    out 0x40, al
-    rol ax, 8
-    out 0x40, al
-
 
     ; Ciclar infinitamente 
     mov eax, 0xFFFF
