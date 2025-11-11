@@ -16,12 +16,12 @@ void task(void) {
 			uint8_t puntaje1 = puntajes[i*2];
 			uint8_t puntaje2 = puntajes[i*2 + 1];
 
-			task_print(pantalla, "Run", 10, 9, C_BG_LIGHT_GREY);
-			task_print(pantalla, "P1", 10, 10, C_BG_LIGHT_GREY);
-			task_print(pantalla, "P2", 10, 11, C_BG_LIGHT_GREY);
+			task_print(pantalla, "Puntajes", 5, 9, C_BG_LIGHT_GREY);
+			task_print(pantalla, "P1", 10, 10 + 4*i, C_BG_LIGHT_GREY);
+			task_print(pantalla, "P2", 10, 11 + 4*i, C_BG_LIGHT_GREY);
 			
-			task_print_dec(pantalla, puntaje1, 3, 20, 20, C_FG_LIGHT_GREY); 
-			task_print_dec(pantalla, puntaje2, 3, 20, 21, C_FG_LIGHT_GREY);
+			task_print_dec(pantalla, puntaje1, 3, 14, 10 + 4*i, C_FG_LIGHT_GREY); 
+			task_print_dec(pantalla, puntaje2, 3, 14, 11 + 4*i, C_FG_LIGHT_GREY);
 		}
 		syscall_draw(pantalla);
 	}
