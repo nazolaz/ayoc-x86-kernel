@@ -232,3 +232,8 @@ a. La tarea ejecucta en un loop infinito para evitar la ejecucion de otra tarea 
 
 18) 
 Tenemos dos tipos de tareas distintas para simular la funcion de multitasking, siendo que en el QEMU se le asigna un espacio de pantalla a cada una de estas tasks. Para ejecutar una tarea distinta, es suficiente con cambiar la tarea a ejecutar en el makefile.
+
+---
+
+19) 
+El puntaje a escribir de la tarea Pong se encentra en la memoria compartida, en esta porcion se basa el mecanismo para compartir datos entre tareas. 

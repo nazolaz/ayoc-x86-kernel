@@ -25,7 +25,8 @@ TASKSCFLAGS=$(CFLAGS) -DORGA2__TAREA__
 
 TASKIDLE=idle.tsk
 TASKA=taskPong.tsk
-TASKB=taskSnake.tsk
+#TASKB=taskSnake.tsk
+TASKB = taskPongScoreboard.tsk
 
 TASKS=tareas.tsk
 
