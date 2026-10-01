@@ -1,109 +1,114 @@
-# x86 Protected Mode Kernel - System Programming
+# x86 Protected Mode Kernel
 
-Practical Work for **Computer Architecture and Organization** (*Arquitectura y Organización del Computador*)  
-**Department of Computer Science** – [Faculty of Exact and Natural Sciences (FCEyN)](https://exactas.uba.ar), **University of Buenos Aires (UBA)**.
+Course project for **Arquitectura y Organización del Computador** (Computer Architecture and Organization)  
+Departamento de Computación, Facultad de Ciencias Exactas y Naturales (FCEyN)  
+Universidad de Buenos Aires (UBA)
 
 ---
 
-## 📌 Project Overview
+## Overview
 
-This project implements a bare-metal 32-bit operating system kernel for the Intel x86 architecture (IA-32), simulated using **QEMU**.
+This repository contains a bare-metal 32-bit x86 operating system kernel developed incrementally throughout the practical coursework of Computer Architecture and Organization. The system boots from a virtual floppy disk image in 16-bit real mode and executes on **QEMU**.
 
-Starting from a foundational floppy disk bootloader that loads the kernel binary into memory at `0x1200` in 16-bit real mode, the kernel sequentially initializes core x86 architectural subsystems: transitioning to **Protected Mode**, configuring hardware **Interrupts and Exceptions (IDT/PIC)**, establishing virtual memory via **Two-Level Paging (MMU)**, and implementing hardware-assisted multitasking using **Task State Segments (TSS)** to run user-space processes (Pong game and Scoreboard) in Ring 3.
+Starting from a starter template provided by the teaching team, we implemented the low-level subsystems required to bring the processor into **32-bit Protected Mode**, initialize **hardware interrupts and exceptions (IDT/PIC)**, set up virtual memory with **two-level paging (MMU)**, and implement **hardware task switching (TSS)** running user-space processes (Pong game and Scoreboard) in Ring 3.
 
-The original course instructions are preserved in [CONSIGNA.md](CONSIGNA.md). Step-by-step module guides are organized as follows:
+The original course assignment is available in [CONSIGNA.md](CONSIGNA.md), and the stage guides are located in:
 - [Part 1: Transition to Protected Mode](01_modo-protegido.md)
-- [Part 2: Interrupts & PIC](02_interrupciones.md)
-- [Part 3: Paging & Virtual Memory](03_paginacion.md)
-- [Part 4: Tasks & Multitasking](04_tareas.md)
+- [Part 2: Interrupts and PIC](02_interrupciones.md)
+- [Part 3: Paging and MMU](03_paginacion.md)
+- [Part 4: Tasks and Multitasking](04_tareas.md)
 
 ---
 
-## 🚀 Key Implementations
+## Starter Template vs. Our Implementation
 
-The kernel was developed in **C (C99 Freestanding)** and **x86 Assembly (NASM)** across several architectural layers:
+The course provided:
+- Bootsector code responsible for reading `KERNEL.BIN` from the floppy disk into memory at `0x1200` in real mode.
+- Build infrastructure (Makefile for compiling freestanding 32-bit binaries, linking with `ld`, creating the disk image, and launching QEMU).
+- Skeleton files with structure declarations and `/* COMPLETAR */` markers.
+- Graphics assets, user task templates (Pong logic), and basic screen drawing routines.
 
-### 1. Transition to 32-Bit Protected Mode & Segmentation
-- **A20 Gate Activation**: Enabled the A20 address line to eliminate 8086 address wraparound and address memory beyond 1 MB.
-- **Global Descriptor Table (GDT)**:
-  - Segment descriptors for Ring 0 (Kernel Code and Data in a flat 4 GB memory model with supervisor privileges).
-  - Segment descriptors for Ring 3 (User Code and Data with DPL=3).
-  - Video memory descriptor mapping VGA text buffer at `0xB8000`.
-  - Task State Segment (TSS) descriptors for the initial task and user tasks.
-- **Mode Switch**: Loaded `GDTR` (`lgdt`), set the Protection Enable (`PE`) bit in `CR0`, and performed a far jump (`jmp CS_RING_0:modo_protegido`) to flush the instruction prefetch queue and serialize execution.
-- Configured data segment registers (`DS`, `ES`, `FS`, `GS`, `SS`) and initialized the kernel stack pointer (`ESP`).
+Our implementation developed the core kernel mechanics:
 
-### 2. Interrupts, Exceptions & Hardware Timers (IDT, PIC & ISRs)
-- **Interrupt Descriptor Table (IDT)**: Defined interrupt gates for CPU exceptions, hardware IRQs, and system call traps.
-- **8259 PIC Remapping**: Reprogrammed Master and Slave PICs via initialization command words (ICW1–ICW4), shifting hardware IRQ vectors (0–15) to interrupts 32–47 to avoid conflicts with Intel-reserved CPU exception vectors (0–31).
-- **Interrupt Service Routines (`isr.asm`)**:
-  - Exception handling (#DE, #UD, #GP, and #PF reading fault address from `CR2`) with full register context preservation (`pushad`), C dispatch, and clean resumption (`popad`, `iret`).
-  - Timer Tick ISR (IRQ 0 / PIT) for screen clock updates and CPU scheduling.
-  - Keyboard ISR (IRQ 1) reading raw scan codes from I/O port `0x60`.
-  - System call software interrupt gate accessible from Ring 3 (DPL=3).
+### 1. Protected Mode Transition & Segmentation (`kernel.asm`, `gdt.c`)
+- Enabled the A20 address line to bypass the 1 MB memory boundary limitation.
+- Configured the Global Descriptor Table (GDT):
+  - Ring 0 Code and Data descriptors (flat 4 GB model).
+  - Ring 3 Code and Data descriptors (DPL=3).
+  - Video memory segment descriptor (`0xB8000`).
+  - TSS descriptors for initial and user tasks.
+- Loaded the GDTR register, enabled the Protection Enable (`PE`) bit in `CR0`, and executed a far jump to serialize execution and reload `CS`.
+- Initialized segment registers (`DS`, `ES`, `FS`, `GS`, `SS`) and set up the kernel stack (`ESP`).
 
-### 3. Virtual Memory & Two-Level Paging (MMU)
-- **Two-Level Paging Structures**: Managed Page Directories (PDE) and Page Tables (PTE) with 4 KB granularity, configuring presence (`P`), read/write (`R/W`), and user/supervisor (`U/S`) flags.
-- **Kernel Identity Mapping**: Mapped the first megabytes of physical memory 1:1 for kernel execution and memory-mapped hardware access.
-- **Memory Management Unit (`mmu.c`)**:
-  - `mmu_map_page`: On-demand page table allocation and virtual-to-physical address translation binding.
-  - `mmu_unmap_page`: Page unmapping with translation lookaside buffer (TLB) cache invalidation via `invlpg`.
-  - `mmu_init_task_dir`: Process address space isolation, mapping user code at `0x08000000`, user stack, and preserving kernel space mappings.
-- **Paging Activation**: Loaded directory base into `CR3` and enabled the Paging (`PG`) bit in `CR0`.
+### 2. Interrupts, PIC and Low-Level Handlers (`idt.c`, `pic.c`, `isr.asm`)
+- Populated the Interrupt Descriptor Table (IDT) with interrupt and trap gates, and loaded `IDTR`.
+- Reprogrammed Master and Slave 8259 PICs (ICW1–ICW4), remapping IRQ vectors 0–15 to interrupts 32–47 to avoid conflicts with Intel CPU exception vectors (0–31).
+- Implemented assembly ISR routines in `isr.asm`:
+  - CPU exception handlers (saving registers with `pushad`, invoking C handlers, and returning with `iret`).
+  - Timer tick handler (IRQ 0 / PIT) updating the on-screen clock and driving scheduling.
+  - Keyboard handler (IRQ 1) reading scan codes from port `0x60`.
+  - System call gate exposed to user privilege (Ring 3).
 
-### 4. Hardware Multitasking & User Processes (TSS)
-- **Task State Segments (TSS)**:
-  - Initial TSS capturing pre-switch CPU state.
-  - Configured task TSS structures for Idle task and User tasks (`taskPong` and `taskPongScoreboard`).
-  - Dedicated Ring 0 stack setup (`ESP0`, `SS0`) per task to handle privilege escalation from Ring 3 during interrupts.
-- **Task Switching**: Loaded the Task Register (`ltr`) and triggered hardware-assisted context switches via far jumps (`jmp far`) targeting TSS segment selectors in the GDT.
-- **Pong & Scoreboard**: Concurrent execution of an interactive Pong game alongside an independent scoreboard task displaying live state in VGA text mode.
+### 3. Paging and Virtual Memory (`mmu.c`)
+- Configured two-level x86 paging structures using 4 KB page directories (PDE) and page tables (PTE).
+- Set up kernel identity mapping for the initial megabytes of memory.
+- Implemented dynamic virtual memory management:
+  - `mmu_map_page`: On-demand allocation of intermediate page tables and mapping of virtual addresses to physical frames with appropriate access flags (`P`, `R/W`, `U/S`).
+  - `mmu_unmap_page`: Page unmapping with explicit TLB invalidation (`invlpg`).
+  - `mmu_init_task_dir`: Isolated virtual address spaces for user processes, mapping user code, private user stack, and preserving kernel space mappings.
+- Loaded `CR3` and activated the Paging (`PG`) bit in `CR0`.
 
-### 5. Theoretical Documentation
-- In-depth design rationale, address translation arithmetic, and architectural answers are documented in [respuestas.md](respuestas.md).
+### 4. Hardware Multitasking (`tss.c`, `tasks.c`)
+- Configured Task State Segments (TSS) for the initial task, an idle task, and user-space tasks (`taskPong` and `taskPongScoreboard`).
+- Allocated dedicated Ring 0 kernel stacks (`ESP0`, `SS0`) inside each TSS to allow safe privilege elevation upon interrupts.
+- Loaded the Task Register (`ltr`) and implemented task switching via far jumps to GDT TSS selectors.
+- Integrated concurrent execution of the Pong game and live scoreboard in VGA text mode.
+
+### 5. Theoretical Analysis
+- Detailed justifications for descriptor configurations, memory maps, address calculations, and architecture questions are documented in [respuestas.md](respuestas.md).
 
 ---
 
-## 📂 Repository Structure
+## Repository Structure
 
 ```text
 ayoc-x86-kernel/
-├── CONSIGNA.md                 # General university assignment prompt
-├── 01_modo-protegido.md        # Part 1 Guide: Protected mode transition
-├── 02_interrupciones.md        # Part 2 Guide: IDT & PIC
-├── 03_paginacion.md            # Part 3 Guide: Paging & MMU
-├── 04_tareas.md                # Part 4 Guide: Multitasking & TSS
+├── CONSIGNA.md                 # General course assignment prompt
+├── 01_modo-protegido.md        # Part 1 guide: Protected mode transition
+├── 02_interrupciones.md        # Part 2 guide: IDT & PIC
+├── 03_paginacion.md            # Part 3 guide: Paging & MMU
+├── 04_tareas.md                # Part 4 guide: Multitasking & TSS
 ├── respuestas.md               # Detailed theoretical questions and analysis
-├── img/                        # Diagram assets and captures
+├── img/                        # Reference diagrams
 └── src/
-    ├── Makefile                # Build system (compilation, linking & floppy disk image)
-    ├── kernel.asm              # Kernel entry point (Real -> Protected mode setup)
-    ├── defines.h               # Architectural constants, selectors, and offsets
-    ├── gdt.c / gdt.h           # Global Descriptor Table initialization
-    ├── idt.c / idt.h           # Interrupt Descriptor Table initialization
-    ├── isr.asm                 # Low-level interrupt service routines in Assembly
-    ├── pic.c / pic.h           # 8259 Programmable Interrupt Controller drivers
-    ├── mmu.c / mmu.h           # Memory Management Unit & paging functions
-    ├── tss.c / tss.h           # Task State Segments & task descriptors
-    ├── screen.c / screen.h     # VGA text mode display driver (0xB8000)
-    ├── sched.c / sched.h       # Round-robin task scheduler
-    ├── tasks.c / tasks.h       # Task loader & initialization
-    └── tareas/                 # User-space tasks (Pong, Scoreboard, Idle)
+    ├── Makefile                # Build and execution targets
+    ├── kernel.asm              # Kernel entry point (Real -> Protected mode)
+    ├── defines.h               # Architecture constants and selectors
+    ├── gdt.c / gdt.h           # GDT initialization and descriptors
+    ├── idt.c / idt.h           # IDT initialization and gate descriptors
+    ├── isr.asm                 # Assembly interrupt service routines
+    ├── pic.c / pic.h           # 8259 PIC drivers
+    ├── mmu.c / mmu.h           # Memory management unit & page mapping
+    ├── tss.c / tss.h           # Task State Segments & descriptors
+    ├── screen.c / screen.h     # VGA text mode driver (0xB8000)
+    ├── sched.c / sched.h       # Scheduler logic
+    ├── tasks.c / tasks.h       # Task loader
+    └── tareas/                 # User tasks (Pong, Scoreboard, Idle)
 ```
 
 ---
 
-## 🛠️ Building & Running
+## Building and Running
 
 ### Prerequisites
 
-- `gcc` (with multilib support for `-m32` / i386 target)
-- `nasm` (Netwide Assembler)
+- `gcc` (with multilib support for 32-bit targets: `-m32`)
+- `nasm`
 - `make`, `bzip2`, `mtools` (`mcopy`)
-- `qemu-system-i386` (for x86 PC emulation)
-- `gdb` (optional, for remote kernel debugging)
+- `qemu-system-i386`
+- `gdb` (optional, for debugging)
 
-### Building the Diskette Image
+### Build the Floppy Disk Image
 
 From the `src/` directory:
 
@@ -112,11 +117,9 @@ cd src
 make
 ```
 
-This compiles all assembly and C sources, links the ELF binary, strips symbols to raw binary `kernel.bin`, and copies it into `diskette.img`.
+This compiles all C and assembly source files, links the kernel binary, creates `kernel.bin`, and copies it to `diskette.img`.
 
-### Running in QEMU
-
-To run the kernel simulation:
+### Run in QEMU
 
 ```bash
 make qemu
@@ -127,13 +130,3 @@ To run with GDB debugging enabled (listening on `localhost:1234`):
 ```bash
 make qemu-gdb
 ```
-
----
-
-## 💻 Tech Stack
-
-- **C (C99 Freestanding)** without standard library (`-ffreestanding`, `-nostdlib`).
-- **x86 Assembly (NASM)** (Intel syntax, 16-bit real mode and 32-bit protected mode).
-- **GNU Linker (ld)** with custom memory layout scripts.
-- **QEMU System i386** PC emulator.
-- **GDB** for hardware register inspection and remote debugging.
